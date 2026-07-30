@@ -4,22 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="page-title">My Online Store</title>
-    <!-- Tailwind CSS CDN -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
+    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Firebase SDKs (Realtime Cloud Syncing) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
     <style>
-        :root {
-            --primary-color: #4f46e5;
-            --bg-color: #f9fafb;
-        }
+        :root { --primary-color: #4f46e5; --bg-color: #f9fafb; }
         body { background-color: var(--bg-color); }
         .bg-primary { background-color: var(--primary-color) !important; }
         .text-primary { color: var(--primary-color) !important; }
-        .border-primary { border-color: var(--primary-color) !important; }
     </style>
 </head>
-<body class="font-sans min-h-screen flex flex-col justify-between transition-colors duration-300">
+<body class="font-sans min-h-screen flex flex-col justify-between">
 
     <!-- Navigation Bar -->
     <nav class="bg-white shadow-md sticky top-0 z-40">
@@ -38,14 +39,6 @@
 
     <!-- Main Content Container -->
     <main class="max-w-7xl mx-auto px-4 py-8 flex-grow w-full">
-        <!-- Hero Banner -->
-        <div id="hero-banner" class="bg-primary text-white rounded-2xl p-8 mb-8 shadow-lg flex flex-col md:flex-row justify-between items-center bg-cover bg-center transition-all duration-300">
-            <div>
-                <h2 id="banner-title" class="text-3xl md:text-4xl font-extrabold mb-2">Welcome to Our Store</h2>
-                <p id="banner-desc" class="text-indigo-100 text-lg">Best products at affordable prices with easy bank transfer checkout.</p>
-            </div>
-        </div>
-
         <!-- Search & Filter Section -->
         <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
             <div class="flex space-x-2 overflow-x-auto pb-2 w-full md:w-auto" id="category-filters"></div>
@@ -63,8 +56,8 @@
     <footer class="bg-gray-800 text-gray-400 py-6 mt-12 text-center text-sm relative">
         <div class="max-w-7xl mx-auto px-4 flex justify-between items-center">
             <p>&copy; <span id="footer-year"></span> <span id="footer-brand">Store Name</span>. All rights reserved.</p>
-            <button onclick="openAdminAuth()" class="text-gray-600 hover:text-gray-300 transition text-xs opacity-30 hover:opacity-100" title="Admin Portal">
-                <i class="fa-solid fa-lock"></i>
+            <button onclick="openAdminAuth()" class="text-gray-400 hover:text-white transition text-sm flex items-center gap-1 font-bold bg-gray-700 px-3 py-1.5 rounded-lg">
+                <i class="fa-solid fa-lock"></i> Admin Portal
             </button>
         </div>
     </footer>
@@ -96,27 +89,23 @@
             
             <h3 class="text-2xl font-bold text-gray-800 mb-4">Complete Your Order</h3>
 
-            <!-- Dynamic Bank Transfer Details Box -->
+            <!-- Dynamic Bank Details Box -->
             <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-4 mb-6">
                 <h4 class="font-bold text-indigo-900 mb-2 flex items-center gap-2">
                     <i class="fa-solid fa-university"></i> Bank Transfer Details
                 </h4>
                 <div class="text-sm text-indigo-800 space-y-1">
-                    <p><strong>Bank:</strong> <span id="checkout-bank-name">-</span></p>
-                    <p><strong>Account Name:</strong> <span id="checkout-acc-name">-</span></p>
-                    <p><strong>Account No:</strong> <span id="checkout-acc-no" class="font-mono bg-white px-2 py-0.5 rounded border border-indigo-200">-</span></p>
-                    <p><strong>Branch:</strong> <span id="checkout-branch">-</span></p>
-                    <p id="checkout-bank-instruction" class="text-xs text-indigo-600 mt-2 italic"></p>
+                    <p><strong>Bank:</strong> <span id="checkout-bank-name">Commercial Bank</span></p>
+                    <p><strong>Account Name:</strong> <span id="checkout-acc-name">Store Owner</span></p>
+                    <p><strong>Account No:</strong> <span id="checkout-acc-no" class="font-mono bg-white px-2 py-0.5 rounded border border-indigo-200">8000123456</span></p>
+                    <p><strong>Branch:</strong> <span id="checkout-branch">Colombo Fort</span></p>
+                    <p id="checkout-bank-instruction" class="text-xs text-indigo-600 mt-2 italic">Please deposit total amount and upload slip image.</p>
                 </div>
             </div>
 
-            <!-- Customer Dynamic Form -->
             <form id="checkout-form" onsubmit="handlePlaceOrder(event)" class="space-y-4">
-                <div id="dynamic-form-fields" class="space-y-4">
-                    <!-- Dynamic fields rendered here -->
-                </div>
+                <div id="dynamic-form-fields" class="space-y-4"></div>
 
-                <!-- BANK SLIP UPLOAD FIELD -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Upload Bank Payment Slip Image *</label>
                     <input type="file" id="cust-slip" accept="image/*" required class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 mt-1 cursor-pointer">
@@ -139,7 +128,7 @@
                 <i class="fa-solid fa-user-shield"></i>
             </div>
             <h3 class="text-xl font-bold text-gray-800 mb-2">Admin Portal</h3>
-            <p class="text-xs text-gray-500 mb-4">Enter password to access dashboard</p>
+            <p class="text-xs text-gray-500 mb-4">Enter password (Default: admin123)</p>
             <input type="password" id="admin-pass-input" placeholder="Password" class="w-full border rounded-lg p-2.5 text-center mb-4 text-sm outline-none focus:ring-2 focus:ring-indigo-500">
             <button onclick="verifyAdminPassword()" class="w-full bg-primary text-white py-2.5 rounded-lg font-semibold hover:opacity-90 transition">Login</button>
         </div>
@@ -149,19 +138,30 @@
     <div id="admin-dashboard-modal" class="fixed inset-0 bg-black bg-opacity-60 z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
             <div class="bg-gray-900 text-white p-4 flex justify-between items-center">
-                <h3 class="font-bold text-lg flex items-center gap-2"><i class="fa-solid fa-sliders"></i> Store Administration</h3>
+                <h3 class="font-bold text-lg flex items-center gap-2"><i class="fa-solid fa-sliders"></i> Store Admin Panel</h3>
                 <button onclick="closeAdminDashboard()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
             </div>
 
             <div class="flex border-b bg-gray-100 overflow-x-auto">
-                <button onclick="switchAdminTab('products')" id="tab-btn-products" class="px-6 py-3 font-semibold text-sm border-b-2 border-indigo-600 text-indigo-600 bg-white whitespace-nowrap">Products</button>
-                <button onclick="switchAdminTab('orders')" id="tab-btn-orders" class="px-6 py-3 font-semibold text-sm border-b-2 border-transparent text-gray-600 hover:text-indigo-600 whitespace-nowrap">Orders & Slips</button>
+                <button onclick="switchAdminTab('orders')" id="tab-btn-orders" class="px-6 py-3 font-semibold text-sm border-b-2 border-indigo-600 text-indigo-600 bg-white whitespace-nowrap">Live Orders & Slips 🔥</button>
+                <button onclick="switchAdminTab('products')" id="tab-btn-products" class="px-6 py-3 font-semibold text-sm border-b-2 border-transparent text-gray-600 hover:text-indigo-600 whitespace-nowrap">Products</button>
                 <button onclick="switchAdminTab('settings')" id="tab-btn-settings" class="px-6 py-3 font-semibold text-sm border-b-2 border-transparent text-gray-600 hover:text-indigo-600 whitespace-nowrap">Bank & Form Settings</button>
             </div>
 
             <div class="p-6 overflow-y-auto flex-grow">
-                <!-- TAB 1: PRODUCTS -->
-                <div id="tab-products" class="space-y-6">
+                <!-- TAB 1: ORDERS (REALTIME) -->
+                <div id="tab-orders" class="space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h4 class="font-bold text-gray-800 text-base">Real-Time Customer Orders & Slips</h4>
+                        <button onclick="clearAllOrders()" class="text-xs bg-red-100 text-red-600 px-3 py-1 rounded font-bold hover:bg-red-200">Clear All Orders</button>
+                    </div>
+                    <div id="admin-orders-list" class="space-y-4">
+                        <p class="text-sm text-gray-400">Loading live orders...</p>
+                    </div>
+                </div>
+
+                <!-- TAB 2: PRODUCTS -->
+                <div id="tab-products" class="hidden space-y-6">
                     <div class="bg-gray-50 p-4 border rounded-xl space-y-4">
                         <h4 class="font-bold text-gray-800 text-base">Add New Product</h4>
                         <form id="add-product-form" onsubmit="handleAddProduct(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -187,36 +187,22 @@
                     </div>
                 </div>
 
-                <!-- TAB 2: ORDERS -->
-                <div id="tab-orders" class="hidden space-y-4">
-                    <h4 class="font-bold text-gray-800 text-base">Customer Orders & Uploaded Slips</h4>
-                    <div id="admin-orders-list" class="space-y-4"></div>
-                </div>
-
-                <!-- TAB 3: BANK & CUSTOM FORM SETTINGS -->
+                <!-- TAB 3: BANK & SETTINGS -->
                 <div id="tab-settings" class="hidden space-y-6">
                     <form id="store-settings-form" onsubmit="handleSaveSettings(event)" class="space-y-4 max-w-xl">
-                        <h4 class="font-bold text-gray-800 text-base border-b pb-2">1. Bank Transfer Details (Editable)</h4>
+                        <h4 class="font-bold text-gray-800 text-base border-b pb-2">1. Bank Details</h4>
                         <div><label class="block text-xs font-semibold text-gray-600">Bank Name</label><input type="text" id="set-bank-name" required class="w-full border rounded p-2 text-sm"></div>
-                        <div><label class="block text-xs font-semibold text-gray-600">Account Holder Name</label><input type="text" id="set-acc-name" required class="w-full border rounded p-2 text-sm"></div>
+                        <div><label class="block text-xs font-semibold text-gray-600">Account Name</label><input type="text" id="set-acc-name" required class="w-full border rounded p-2 text-sm"></div>
                         <div><label class="block text-xs font-semibold text-gray-600">Account Number</label><input type="text" id="set-acc-no" required class="w-full border rounded p-2 text-sm"></div>
                         <div><label class="block text-xs font-semibold text-gray-600">Branch Name</label><input type="text" id="set-branch" required class="w-full border rounded p-2 text-sm"></div>
-                        <div><label class="block text-xs font-semibold text-gray-600">Payment Instruction Note</label><input type="text" id="set-bank-note" class="w-full border rounded p-2 text-sm"></div>
 
-                        <h4 class="font-bold text-gray-800 text-base border-b pb-2 pt-4">2. Checkout Form Fields Manager</h4>
-                        <div id="admin-form-builder" class="space-y-3"></div>
-                        <button type="button" onclick="addFormFieldManager()" class="text-xs bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded font-bold hover:bg-indigo-200">+ Add Custom Field</button>
-
-                        <h4 class="font-bold text-gray-800 text-base border-b pb-2 pt-4">3. Store & WhatsApp Setup</h4>
+                        <h4 class="font-bold text-gray-800 text-base border-b pb-2 pt-4">2. Store & WhatsApp Setup</h4>
                         <div><label class="block text-xs font-semibold text-gray-600">Store Name</label><input type="text" id="set-store-name" required class="w-full border rounded p-2 text-sm"></div>
                         <div><label class="block text-xs font-semibold text-gray-600">WhatsApp Number (e.g. 947XXXXXXXX)</label><input type="text" id="set-whatsapp" required class="w-full border rounded p-2 text-sm"></div>
-
-                        <h4 class="font-bold text-gray-800 text-base border-b pb-2 pt-4">4. Design & Security</h4>
-                        <div><label class="block text-xs font-semibold text-gray-600">Primary Theme Color</label><input type="color" id="set-theme-color" class="w-full h-10 border rounded p-1 cursor-pointer"></div>
-                        <div><label class="block text-xs font-semibold text-gray-600">New Admin Password</label><input type="password" id="set-admin-pass" placeholder="Leave blank if unchanged" class="w-full border rounded p-2 text-sm"></div>
+                        <div><label class="block text-xs font-semibold text-gray-600">Admin Password</label><input type="password" id="set-admin-pass" placeholder="admin123" class="w-full border rounded p-2 text-sm"></div>
 
                         <div class="pt-4">
-                            <button type="submit" class="bg-green-600 text-white px-6 py-2.5 rounded-lg font-bold text-sm hover:bg-green-700">Save All Changes</button>
+                            <button type="submit" class="bg-green-600 text-white px-6 py-2.5 rounded-lg font-bold text-sm hover:bg-green-700">Save Settings</button>
                         </div>
                     </form>
                 </div>
@@ -224,17 +210,17 @@
         </div>
     </div>
 
-    <!-- JAVASCRIPT LOGIC -->
+    <!-- JAVASCRIPT & REALTIME DATABASE LOGIC -->
     <script>
-        const DEFAULT_PRODUCTS = [
-            { id: 1, title: "Classic Cotton T-Shirt", price: 2500, category: "Clothing", image: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=500&q=80", description: "Premium cotton t-shirt." }
-        ];
+        // --- PUBLIC FIREBASE REALTIME DATABASE CONFIG (Free Cloud Sync) ---
+        const firebaseConfig = {
+            databaseURL: "https://online-store-slip-default-rtdb.firebaseio.com/"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-        const DEFAULT_FORM_FIELDS = [
-            { id: "cust_name", label: "Full Name", placeholder: "Enter your full name", required: true },
-            { id: "cust_phone", label: "Phone / WhatsApp Number", placeholder: "07XXXXXXXX", required: true },
-            { id: "cust_address", label: "Delivery Address", placeholder: "Your full address", required: true },
-            { id: "cust_city", label: "Nearest Town / District", placeholder: "e.g. Maharagama / Colombo", required: false }
+        const DEFAULT_PRODUCTS = [
+            { id: 1, title: "Classic Shirt", price: 2500, category: "Clothing", image: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=500&q=80", description: "Premium cotton shirt." }
         ];
 
         const DEFAULT_SETTINGS = {
@@ -244,17 +230,13 @@
             accName: "Store Owner",
             accNo: "8000123456",
             branch: "Colombo Fort",
-            bankNote: "Please deposit the total amount and upload the receipt screenshot.",
-            adminPassword: "admin123",
-            themeColor: "#4f46e5",
-            formFields: DEFAULT_FORM_FIELDS
+            adminPassword: "admin123"
         };
 
         let products = JSON.parse(localStorage.getItem('products')) || DEFAULT_PRODUCTS;
         let settings = JSON.parse(localStorage.getItem('store_settings')) || DEFAULT_SETTINGS;
-        if (!settings.formFields) settings.formFields = DEFAULT_FORM_FIELDS;
-        let orders = JSON.parse(localStorage.getItem('store_orders')) || [];
         let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        let liveOrders = [];
         let selectedCategory = 'All';
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -262,32 +244,38 @@
             applySettings();
             renderProducts();
             renderCart();
-            setupSecretAdminShortcut();
+            listenToLiveOrders(); // Starts listening to Realtime Orders from Cloud
         });
 
         function applySettings() {
-            document.getElementById('page-title').innerText = settings.storeName;
             document.getElementById('brand-name').innerText = settings.storeName;
             document.getElementById('footer-brand').innerText = settings.storeName;
-
             document.getElementById('checkout-bank-name').innerText = settings.bankName;
             document.getElementById('checkout-acc-name').innerText = settings.accName;
             document.getElementById('checkout-acc-no').innerText = settings.accNo;
             document.getElementById('checkout-branch').innerText = settings.branch;
-            document.getElementById('checkout-bank-instruction').innerText = settings.bankNote || "";
 
-            document.documentElement.style.setProperty('--primary-color', settings.themeColor || '#4f46e5');
-            renderCheckoutFormFields();
+            // Form Fields
+            const container = document.getElementById('dynamic-form-fields');
+            container.innerHTML = `
+                <div><label class="block text-sm font-medium text-gray-700">Full Name *</label><input type="text" id="cust_name" required class="w-full border rounded-lg p-2.5 text-sm outline-none"></div>
+                <div><label class="block text-sm font-medium text-gray-700">Phone / WhatsApp *</label><input type="text" id="cust_phone" required class="w-full border rounded-lg p-2.5 text-sm outline-none"></div>
+                <div><label class="block text-sm font-medium text-gray-700">Address *</label><input type="text" id="cust_address" required class="w-full border rounded-lg p-2.5 text-sm outline-none"></div>
+            `;
         }
 
-        function renderCheckoutFormFields() {
-            const container = document.getElementById('dynamic-form-fields');
-            container.innerHTML = settings.formFields.map(f => `
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">${f.label} ${f.required ? '*' : ''}</label>
-                    <input type="text" data-field-label="${f.label}" placeholder="${f.placeholder || ''}" ${f.required ? 'required' : ''} class="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
-                </div>
-            `).join('');
+        // --- REAL-TIME SYNC LISTENER (Syncs Phone & Lap instantly) ---
+        function listenToLiveOrders() {
+            db.ref('orders').on('value', (snapshot) => {
+                const data = snapshot.val();
+                liveOrders = [];
+                if (data) {
+                    Object.keys(data).forEach(key => {
+                        liveOrders.unshift({ id: key, ...data[key] });
+                    });
+                }
+                renderAdminOrders();
+            });
         }
 
         function renderProducts() {
@@ -330,11 +318,9 @@
         }
 
         function filterCategory(cat) { selectedCategory = cat; renderProducts(); }
-        
         function handleSearch() {
             const query = document.getElementById('search-input').value.toLowerCase();
-            const cards = document.querySelectorAll('#product-grid > div');
-            cards.forEach(card => {
+            document.querySelectorAll('#product-grid > div').forEach(card => {
                 const title = card.querySelector('h3').innerText.toLowerCase();
                 card.style.display = title.includes(query) ? 'flex' : 'none';
             });
@@ -358,21 +344,14 @@
         function saveCart() { localStorage.setItem('cart', JSON.stringify(cart)); }
 
         function renderCart() {
-            const cartItemsContainer = document.getElementById('cart-items');
-            const cartCountBadge = document.getElementById('cart-count');
-            const cartTotal = document.getElementById('cart-total');
-            const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
+            const container = document.getElementById('cart-items');
+            document.getElementById('cart-count').innerText = cart.reduce((sum, item) => sum + item.qty, 0);
             const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            document.getElementById('cart-total').innerText = `Rs. ${totalPrice.toLocaleString()}`;
 
-            cartCountBadge.innerText = totalQty;
-            cartTotal.innerText = `Rs. ${totalPrice.toLocaleString()}`;
+            if (cart.length === 0) return container.innerHTML = `<p class="text-center text-gray-400 py-12">Your cart is empty.</p>`;
 
-            if (cart.length === 0) {
-                cartItemsContainer.innerHTML = `<p class="text-center text-gray-400 py-12">Your cart is empty.</p>`;
-                return;
-            }
-
-            cartItemsContainer.innerHTML = cart.map(item => `
+            container.innerHTML = cart.map(item => `
                 <div class="flex items-center justify-between border-b pb-3">
                     <div class="flex items-center space-x-3">
                         <img src="${item.image}" class="w-12 h-12 rounded object-cover">
@@ -396,107 +375,80 @@
         }
 
         function openCheckoutModal() {
-            if (cart.length === 0) return alert('Your cart is empty!');
+            if (cart.length === 0) return alert('Cart is empty!');
             toggleCart(false);
             document.getElementById('checkout-modal').classList.remove('hidden');
         }
 
         function closeCheckoutModal() { document.getElementById('checkout-modal').classList.add('hidden'); }
 
-        // --- PLACE ORDER VIA WHATSAPP (WITH FREE AUTOMATIC SLIP IMAGE HOSTING) ---
+        // --- CONVERT SLIP IMAGE TO BASE64 FOR CLOUD STORAGE ---
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        // --- PLACE ORDER & REAL-TIME UPLOAD TO DATABASE ---
         async function handlePlaceOrder(e) {
             e.preventDefault();
             const slipInput = document.getElementById('cust-slip');
-            if (!slipInput.files[0]) return alert('Please upload bank payment slip!');
+            if (!slipInput.files[0]) return alert('Please upload the payment slip image!');
 
-            const submitBtn = document.getElementById('btn-submit-order');
-            const submitText = document.getElementById('btn-submit-text');
-            submitBtn.disabled = true;
-            submitText.innerText = "Processing Slip Photo...";
+            const btnText = document.getElementById('btn-submit-text');
+            btnText.innerText = "Syncing Slip & Processing...";
 
-            // Collect dynamic form fields
-            let customerDetails = [];
-            const inputs = document.querySelectorAll('#dynamic-form-fields input');
-            inputs.forEach(inp => {
-                customerDetails.push({
-                    label: inp.getAttribute('data-field-label'),
-                    value: inp.value
-                });
-            });
-
-            // Upload photo to ImgBB free cloud to generate direct link for WhatsApp
-            let imageUrl = "";
             try {
-                const formData = new FormData();
-                formData.append("image", slipInput.files[0]);
-                const response = await fetch("https://api.imgbb.com/1/upload?key=3813fa2ec765bdf2559eb4df872ebfb5", {
-                    method: "POST",
-                    body: formData
+                // Convert Slip image to compressed Data URL
+                const slipBase64 = await fileToBase64(slipInput.files[0]);
+                const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+
+                const orderData = {
+                    date: new Date().toLocaleString(),
+                    name: document.getElementById('cust_name').value,
+                    phone: document.getElementById('cust_phone').value,
+                    address: document.getElementById('cust_address').value,
+                    items: cart,
+                    total: totalPrice,
+                    slipImage: slipBase64
+                };
+
+                // Push Order Real-time to Firebase Cloud Database
+                await db.ref('orders').push(orderData);
+
+                // Create WhatsApp Message
+                let message = `🛒 *NEW ORDER - ${settings.storeName}*\n\n`;
+                message += `*Customer:* ${orderData.name}\n`;
+                message += `*Phone:* ${orderData.phone}\n`;
+                message += `*Address:* ${orderData.address}\n\n`;
+                message += `*Items Ordered:*\n`;
+                cart.forEach((i, idx) => {
+                    message += `${idx + 1}. ${i.title} (x${i.qty}) - Rs. ${(i.price * i.qty).toLocaleString()}\n`;
                 });
-                const data = await response.json();
-                if (data.success) {
-                    imageUrl = data.data.url;
-                }
+                message += `\n💰 *Total Amount: Rs. ${totalPrice.toLocaleString()}*\n`;
+                message += `📎 *Slip Image attached in Store Dashboard.*`;
+
+                let cleanPhone = settings.whatsapp.replace(/[^0-9]/g, '');
+                const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
+
+                cart = [];
+                saveCart();
+                renderCart();
+                btnText.innerText = "Place Order via WhatsApp";
+                closeCheckoutModal();
+
+                window.open(whatsappUrl, '_blank');
+
             } catch (err) {
-                console.log("Image upload failed, fallback to local save", err);
+                alert("Upload failed. Please try again!");
+                btnText.innerText = "Place Order via WhatsApp";
             }
-
-            const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-
-            const newOrder = {
-                id: Date.now(),
-                date: new Date().toLocaleString(),
-                customerInfo: customerDetails,
-                items: [...cart],
-                total: totalPrice,
-                slip: imageUrl || "Uploaded (Check Admin Panel)"
-            };
-
-            orders.unshift(newOrder);
-            localStorage.setItem('store_orders', JSON.stringify(orders));
-
-            // Generate WhatsApp Message
-            let message = `🛒 *NEW ORDER - ${settings.storeName}*\n\n`;
-            message += `*Customer Details:*\n`;
-            customerDetails.forEach(d => {
-                message += `• ${d.label}: ${d.value}\n`;
-            });
-
-            message += `\n*Order Items:*\n`;
-            cart.forEach((i, idx) => {
-                message += `${idx + 1}. ${i.title} (x${i.qty}) - Rs. ${(i.price * i.qty).toLocaleString()}\n`;
-            });
-
-            message += `\n💰 *Total Amount: Rs. ${totalPrice.toLocaleString()}*\n\n`;
-            message += `--- Bank Details ---\nBank: ${settings.bankName}\nAcc No: ${settings.accNo}\n\n`;
-            
-            if (imageUrl) {
-                message += `🖼️ *Bank Payment Slip Link:*\n${imageUrl}`;
-            } else {
-                message += `📎 *Bank slip uploaded to store database.*`;
-            }
-
-            // Ensure proper WhatsApp phone format
-            let cleanPhone = settings.whatsapp.replace(/[^0-9]/g, '');
-            const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
-
-            cart = [];
-            saveCart();
-            renderCart();
-            submitBtn.disabled = false;
-            submitText.innerText = "Place Order via WhatsApp";
-            closeCheckoutModal();
-
-            window.open(whatsappUrl, '_blank');
         }
 
-        // --- ADMIN PORTAL ---
-        function setupSecretAdminShortcut() {
-            document.addEventListener('keydown', (e) => {
-                if (e.ctrlKey && e.shiftKey && e.code === 'KeyA') openAdminAuth();
-            });
-        }
-
+        // --- ADMIN PANEL FUNCTIONS ---
         function openAdminAuth() { document.getElementById('admin-auth-modal').classList.remove('hidden'); }
         function closeAdminAuth() { document.getElementById('admin-auth-modal').classList.add('hidden'); }
 
@@ -525,6 +477,42 @@
             });
             document.getElementById(`tab-${tab}`).classList.remove('hidden');
             document.getElementById(`tab-btn-${tab}`).className = "px-6 py-3 font-semibold text-sm border-b-2 border-indigo-600 text-indigo-600 bg-white whitespace-nowrap";
+        }
+
+        function renderAdminOrders() {
+            const container = document.getElementById('admin-orders-list');
+            if (liveOrders.length === 0) return container.innerHTML = `<p class="text-gray-500 text-sm">No live orders found.</p>`;
+
+            container.innerHTML = liveOrders.map(o => `
+                <div class="border rounded-xl p-4 bg-gray-50 space-y-3 shadow-sm">
+                    <div class="flex justify-between items-center border-b pb-2">
+                        <span class="font-bold text-gray-800 text-sm">Order ID: ${o.id.substring(1, 8)}</span>
+                        <span class="text-xs text-gray-500">${o.date}</span>
+                    </div>
+                    <div class="text-xs space-y-1 text-gray-700">
+                        <p><strong>Customer:</strong> ${o.name}</p>
+                        <p><strong>Phone:</strong> ${o.phone}</p>
+                        <p><strong>Address:</strong> ${o.address}</p>
+                    </div>
+                    <div class="text-xs bg-white p-2 border rounded space-y-1">
+                        <p class="font-bold text-gray-700">Items:</p>
+                        ${o.items.map(i => `<p>• ${i.title} (x${i.qty}) - Rs. ${(i.price * i.qty).toLocaleString()}</p>`).join('')}
+                        <p class="font-bold text-indigo-600 pt-1">Total: Rs. ${o.total.toLocaleString()}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold text-gray-700 mb-1">Uploaded Bank Slip Image:</p>
+                        <a href="${o.slipImage}" target="_blank">
+                            <img src="${o.slipImage}" class="h-32 rounded border shadow hover:opacity-90 cursor-pointer object-cover">
+                        </a>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function clearAllOrders() {
+            if (confirm('Delete all live orders from Cloud database?')) {
+                db.ref('orders').remove();
+            }
         }
 
         function renderAdminProductsTable() {
@@ -564,61 +552,14 @@
             }
         }
 
-        function renderAdminOrders() {
-            const container = document.getElementById('admin-orders-list');
-            if (orders.length === 0) return container.innerHTML = `<p class="text-gray-500 text-sm">No orders yet.</p>`;
-
-            container.innerHTML = orders.map(o => `
-                <div class="border rounded-xl p-4 bg-gray-50 space-y-3">
-                    <div class="flex justify-between items-center border-b pb-2">
-                        <span class="font-bold text-gray-700">Order ID: #${o.id}</span>
-                        <span class="text-xs text-gray-500">${o.date}</span>
-                    </div>
-                    <div class="text-xs space-y-1">
-                        ${o.customerInfo.map(c => `<p><strong>${c.label}:</strong> ${c.value}</p>`).join('')}
-                    </div>
-                    <div class="text-xs bg-white p-2 border rounded space-y-1">
-                        <p class="font-bold text-gray-700">Items Ordered:</p>
-                        ${o.items.map(i => `<p>• ${i.title} (x${i.qty}) - Rs. ${(i.price * i.qty).toLocaleString()}</p>`).join('')}
-                        <p class="font-bold text-indigo-600 pt-1">Total: Rs. ${o.total.toLocaleString()}</p>
-                    </div>
-                    ${o.slip.startsWith('http') ? 
-                        `<div><a href="${o.slip}" target="_blank" class="inline-block bg-indigo-600 text-white text-xs px-3 py-1.5 rounded font-bold hover:bg-indigo-700">View Bank Slip Photo 🖼️</a></div>` : 
-                        `<p class="text-xs text-gray-500">Slip Status: ${o.slip}</p>`
-                    }
-                </div>
-            `).join('');
-        }
-
         function populateSettingsForm() {
             document.getElementById('set-bank-name').value = settings.bankName;
             document.getElementById('set-acc-name').value = settings.accName;
             document.getElementById('set-acc-no').value = settings.accNo;
             document.getElementById('set-branch').value = settings.branch;
-            document.getElementById('set-bank-note').value = settings.bankNote || "";
             document.getElementById('set-store-name').value = settings.storeName;
             document.getElementById('set-whatsapp').value = settings.whatsapp;
-            document.getElementById('set-theme-color').value = settings.themeColor || "#4f46e5";
-            renderAdminFormFieldsBuilder();
-        }
-
-        function renderAdminFormFieldsBuilder() {
-            const container = document.getElementById('admin-form-builder');
-            container.innerHTML = settings.formFields.map((f, idx) => `
-                <div class="flex gap-2 items-center bg-white p-2 border rounded">
-                    <input type="text" value="${f.label}" onchange="updateFormFieldLabel(${idx}, this.value)" class="border p-1 text-xs rounded flex-grow" placeholder="Field Label">
-                    <label class="text-xs flex items-center gap-1"><input type="checkbox" ${f.required ? 'checked' : ''} onchange="updateFormFieldRequired(${idx}, this.checked)"> Required</label>
-                    <button type="button" onclick="removeFormField(${idx})" class="text-red-500 text-xs font-bold px-2">X</button>
-                </div>
-            `).join('');
-        }
-
-        function updateFormFieldLabel(idx, val) { settings.formFields[idx].label = val; }
-        function updateFormFieldRequired(idx, val) { settings.formFields[idx].required = val; }
-        function removeFormField(idx) { settings.formFields.splice(idx, 1); renderAdminFormFieldsBuilder(); }
-        function addFormFieldManager() {
-            settings.formFields.push({ id: `cust_custom_${Date.now()}`, label: "New Field", placeholder: "", required: false });
-            renderAdminFormFieldsBuilder();
+            document.getElementById('set-admin-pass').value = settings.adminPassword;
         }
 
         function handleSaveSettings(e) {
@@ -627,13 +568,9 @@
             settings.accName = document.getElementById('set-acc-name').value;
             settings.accNo = document.getElementById('set-acc-no').value;
             settings.branch = document.getElementById('set-branch').value;
-            settings.bankNote = document.getElementById('set-bank-note').value;
             settings.storeName = document.getElementById('set-store-name').value;
             settings.whatsapp = document.getElementById('set-whatsapp').value;
-            settings.themeColor = document.getElementById('set-theme-color').value;
-
-            const newPass = document.getElementById('set-admin-pass').value;
-            if (newPass.trim() !== '') settings.adminPassword = newPass;
+            settings.adminPassword = document.getElementById('set-admin-pass').value || "admin123";
 
             localStorage.setItem('store_settings', JSON.stringify(settings));
             applySettings();

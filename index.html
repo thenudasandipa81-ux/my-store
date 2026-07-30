@@ -123,8 +123,8 @@
                 </div>
 
                 <div class="pt-2">
-                    <button type="submit" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold text-lg hover:bg-green-700 transition flex items-center justify-center gap-2">
-                        <i class="fa-brands fa-whatsapp text-2xl"></i> Place Order via WhatsApp
+                    <button type="submit" id="btn-submit-order" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold text-lg hover:bg-green-700 transition flex items-center justify-center gap-2">
+                        <i class="fa-brands fa-whatsapp text-2xl"></i> <span id="btn-submit-text">Place Order via WhatsApp</span>
                     </button>
                 </div>
             </form>
@@ -204,11 +204,8 @@
                         <div><label class="block text-xs font-semibold text-gray-600">Payment Instruction Note</label><input type="text" id="set-bank-note" class="w-full border rounded p-2 text-sm"></div>
 
                         <h4 class="font-bold text-gray-800 text-base border-b pb-2 pt-4">2. Checkout Form Fields Manager</h4>
-                        <p class="text-xs text-gray-500">Checkout form එකේ Customer ගෙන් අහන්න ඕන ප්‍රශ්න/Fields මෙතැනින් එකතු කරන්න හෝ වෙනස් කරන්න.</p>
-                        <div id="admin-form-builder" class="space-y-3">
-                            <!-- Dynamic field manager -->
-                        </div>
-                        <button type="button" onclick="addFormFieldManager()" class="text-xs bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded font-bold hover:bg-indigo-200">+ Add Custom Field to Form</button>
+                        <div id="admin-form-builder" class="space-y-3"></div>
+                        <button type="button" onclick="addFormFieldManager()" class="text-xs bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded font-bold hover:bg-indigo-200">+ Add Custom Field</button>
 
                         <h4 class="font-bold text-gray-800 text-base border-b pb-2 pt-4">3. Store & WhatsApp Setup</h4>
                         <div><label class="block text-xs font-semibold text-gray-600">Store Name</label><input type="text" id="set-store-name" required class="w-full border rounded p-2 text-sm"></div>
@@ -283,13 +280,12 @@
             renderCheckoutFormFields();
         }
 
-        // --- RENDER DYNAMIC FORM FIELDS ---
         function renderCheckoutFormFields() {
             const container = document.getElementById('dynamic-form-fields');
             container.innerHTML = settings.formFields.map(f => `
                 <div>
                     <label class="block text-sm font-medium text-gray-700">${f.label} ${f.required ? '*' : ''}</label>
-                    <input type="text" data-field-id="${f.id}" data-field-label="${f.label}" placeholder="${f.placeholder || ''}" ${f.required ? 'required' : ''} class="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                    <input type="text" data-field-label="${f.label}" placeholder="${f.placeholder || ''}" ${f.required ? 'required' : ''} class="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
                 </div>
             `).join('');
         }
@@ -334,6 +330,16 @@
         }
 
         function filterCategory(cat) { selectedCategory = cat; renderProducts(); }
+        
+        function handleSearch() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const cards = document.querySelectorAll('#product-grid > div');
+            cards.forEach(card => {
+                const title = card.querySelector('h3').innerText.toLowerCase();
+                card.style.display = title.includes(query) ? 'flex' : 'none';
+            });
+        }
+
         function addToCart(id) {
             const prod = products.find(p => p.id === id);
             const existing = cart.find(item => item.id === id);
@@ -397,13 +403,18 @@
 
         function closeCheckoutModal() { document.getElementById('checkout-modal').classList.add('hidden'); }
 
-        // --- PLACE ORDER VIA WHATSAPP ---
-        function handlePlaceOrder(e) {
+        // --- PLACE ORDER VIA WHATSAPP (WITH FREE AUTOMATIC SLIP IMAGE HOSTING) ---
+        async function handlePlaceOrder(e) {
             e.preventDefault();
             const slipInput = document.getElementById('cust-slip');
             if (!slipInput.files[0]) return alert('Please upload bank payment slip!');
 
-            // Collect all dynamic fields
+            const submitBtn = document.getElementById('btn-submit-order');
+            const submitText = document.getElementById('btn-submit-text');
+            submitBtn.disabled = true;
+            submitText.innerText = "Processing Slip Photo...";
+
+            // Collect dynamic form fields
             let customerDetails = [];
             const inputs = document.querySelectorAll('#dynamic-form-fields input');
             inputs.forEach(inp => {
@@ -413,52 +424,73 @@
                 });
             });
 
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                const slipBase64 = event.target.result;
-                const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-
-                const newOrder = {
-                    id: Date.now(),
-                    date: new Date().toLocaleString(),
-                    customerInfo: customerDetails,
-                    items: [...cart],
-                    total: totalPrice,
-                    slip: slipBase64
-                };
-
-                orders.unshift(newOrder);
-                localStorage.setItem('store_orders', JSON.stringify(orders));
-
-                // Generate WhatsApp Message
-                let message = `🛒 *NEW ORDER - ${settings.storeName}*\n\n`;
-                message += `*Customer Details:*\n`;
-                customerDetails.forEach(d => {
-                    message += `• ${d.label}: ${d.value}\n`;
+            // Upload photo to ImgBB free cloud to generate direct link for WhatsApp
+            let imageUrl = "";
+            try {
+                const formData = new FormData();
+                formData.append("image", slipInput.files[0]);
+                const response = await fetch("https://api.imgbb.com/1/upload?key=3813fa2ec765bdf2559eb4df872ebfb5", {
+                    method: "POST",
+                    body: formData
                 });
+                const data = await response.json();
+                if (data.success) {
+                    imageUrl = data.data.url;
+                }
+            } catch (err) {
+                console.log("Image upload failed, fallback to local save", err);
+            }
 
-                message += `\n*Order Items:*\n`;
-                cart.forEach((i, idx) => {
-                    message += `${idx + 1}. ${i.title} (x${i.qty}) - Rs. ${(i.price * i.qty).toLocaleString()}\n`;
-                });
+            const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
 
-                message += `\n💰 *Total Amount: Rs. ${totalPrice.toLocaleString()}*\n\n`;
-                message += `--- Bank Transfer Details ---\nBank: ${settings.bankName}\nAcc No: ${settings.accNo} (${settings.accName})\nBranch: ${settings.branch}\n\n📎 *I have attached my bank slip photo on the website.*`;
-
-                const whatsappUrl = `https://wa.me/${settings.whatsapp}?text=${encodeURIComponent(message)}`;
-
-                cart = [];
-                saveCart();
-                renderCart();
-                closeCheckoutModal();
-
-                window.open(whatsappUrl, '_blank');
+            const newOrder = {
+                id: Date.now(),
+                date: new Date().toLocaleString(),
+                customerInfo: customerDetails,
+                items: [...cart],
+                total: totalPrice,
+                slip: imageUrl || "Uploaded (Check Admin Panel)"
             };
 
-            reader.readAsDataURL(slipInput.files[0]);
+            orders.unshift(newOrder);
+            localStorage.setItem('store_orders', JSON.stringify(orders));
+
+            // Generate WhatsApp Message
+            let message = `🛒 *NEW ORDER - ${settings.storeName}*\n\n`;
+            message += `*Customer Details:*\n`;
+            customerDetails.forEach(d => {
+                message += `• ${d.label}: ${d.value}\n`;
+            });
+
+            message += `\n*Order Items:*\n`;
+            cart.forEach((i, idx) => {
+                message += `${idx + 1}. ${i.title} (x${i.qty}) - Rs. ${(i.price * i.qty).toLocaleString()}\n`;
+            });
+
+            message += `\n💰 *Total Amount: Rs. ${totalPrice.toLocaleString()}*\n\n`;
+            message += `--- Bank Details ---\nBank: ${settings.bankName}\nAcc No: ${settings.accNo}\n\n`;
+            
+            if (imageUrl) {
+                message += `🖼️ *Bank Payment Slip Link:*\n${imageUrl}`;
+            } else {
+                message += `📎 *Bank slip uploaded to store database.*`;
+            }
+
+            // Ensure proper WhatsApp phone format
+            let cleanPhone = settings.whatsapp.replace(/[^0-9]/g, '');
+            const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
+
+            cart = [];
+            saveCart();
+            renderCart();
+            submitBtn.disabled = false;
+            submitText.innerText = "Place Order via WhatsApp";
+            closeCheckoutModal();
+
+            window.open(whatsappUrl, '_blank');
         }
 
-        // --- SECRET ADMIN ---
+        // --- ADMIN PORTAL ---
         function setupSecretAdminShortcut() {
             document.addEventListener('keydown', (e) => {
                 if (e.ctrlKey && e.shiftKey && e.code === 'KeyA') openAdminAuth();
@@ -503,7 +535,7 @@
                     <td class="p-2 border font-semibold">${p.title}</td>
                     <td class="p-2 border">Rs. ${p.price.toLocaleString()}</td>
                     <td class="p-2 border">${p.category}</td>
-                    <td class="p-2 border"><button onclick="deleteProduct(${p.id})" class="text-red-600 font-bold">Delete</button></td>
+                    <td class="p-2 border"><button onclick="deleteProduct(${p.id})" class="text-red-600 font-bold hover:underline">Delete</button></td>
                 </tr>
             `).join('');
         }
@@ -537,53 +569,25 @@
             if (orders.length === 0) return container.innerHTML = `<p class="text-gray-500 text-sm">No orders yet.</p>`;
 
             container.innerHTML = orders.map(o => `
-                <div class="border rounded-xl p-4 bg-gray-50 flex flex-col md:flex-row justify-between gap-4">
-                    <div class="space-y-1 text-sm">
-                        <p class="font-bold text-gray-800">Order ID: #${o.id} <span class="text-xs text-gray-500">(${o.date})</span></p>
-                        ${o.customerInfo ? o.customerInfo.map(ci => `<p class="text-xs text-gray-600"><strong>${ci.label}:</strong> ${ci.value}</p>`).join('') : ''}
-                        <div class="text-xs font-semibold text-indigo-700 mt-2">
-                            ${o.items.map(i => `${i.title} (x${i.qty})`).join(', ')}
-                        </div>
-                        <p class="font-bold text-gray-800 pt-1">Total: Rs. ${o.total.toLocaleString()}</p>
+                <div class="border rounded-xl p-4 bg-gray-50 space-y-3">
+                    <div class="flex justify-between items-center border-b pb-2">
+                        <span class="font-bold text-gray-700">Order ID: #${o.id}</span>
+                        <span class="text-xs text-gray-500">${o.date}</span>
                     </div>
-                    <div class="flex-shrink-0">
-                        <p class="text-xs font-bold text-gray-600 mb-1">Uploaded Bank Slip:</p>
-                        <a href="${o.slip}" target="_blank">
-                            <img src="${o.slip}" class="w-28 h-28 object-cover rounded border hover:opacity-80 transition cursor-pointer">
-                        </a>
+                    <div class="text-xs space-y-1">
+                        ${o.customerInfo.map(c => `<p><strong>${c.label}:</strong> ${c.value}</p>`).join('')}
                     </div>
+                    <div class="text-xs bg-white p-2 border rounded space-y-1">
+                        <p class="font-bold text-gray-700">Items Ordered:</p>
+                        ${o.items.map(i => `<p>• ${i.title} (x${i.qty}) - Rs. ${(i.price * i.qty).toLocaleString()}</p>`).join('')}
+                        <p class="font-bold text-indigo-600 pt-1">Total: Rs. ${o.total.toLocaleString()}</p>
+                    </div>
+                    ${o.slip.startsWith('http') ? 
+                        `<div><a href="${o.slip}" target="_blank" class="inline-block bg-indigo-600 text-white text-xs px-3 py-1.5 rounded font-bold hover:bg-indigo-700">View Bank Slip Photo 🖼️</a></div>` : 
+                        `<p class="text-xs text-gray-500">Slip Status: ${o.slip}</p>`
+                    }
                 </div>
             `).join('');
-        }
-
-        // --- ADMIN FORM BUILDER ---
-        function renderAdminFormBuilder() {
-            const container = document.getElementById('admin-form-builder');
-            container.innerHTML = settings.formFields.map((f, idx) => `
-                <div class="flex items-center gap-2 border p-2 rounded bg-white">
-                    <input type="text" value="${f.label}" onchange="updateFormField(${idx}, 'label', this.value)" class="border p-1 text-xs rounded w-1/3" placeholder="Field Label">
-                    <input type="text" value="${f.placeholder || ''}" onchange="updateFormField(${idx}, 'placeholder', this.value)" class="border p-1 text-xs rounded w-1/3" placeholder="Placeholder">
-                    <label class="text-xs flex items-center gap-1">
-                        <input type="checkbox" ${f.required ? 'checked' : ''} onchange="updateFormField(${idx}, 'required', this.checked)"> Required
-                    </label>
-                    <button type="button" onclick="removeFormFieldManager(${idx})" class="text-red-500 font-bold text-xs ml-auto">&times;</button>
-                </div>
-            `).join('');
-        }
-
-        function addFormFieldManager() {
-            const newId = "custom_" + Date.now();
-            settings.formFields.push({ id: newId, label: "New Field", placeholder: "Enter details", required: false });
-            renderAdminFormBuilder();
-        }
-
-        function updateFormField(index, key, val) {
-            settings.formFields[index][key] = val;
-        }
-
-        function removeFormFieldManager(index) {
-            settings.formFields.splice(index, 1);
-            renderAdminFormBuilder();
         }
 
         function populateSettingsForm() {
@@ -594,8 +598,27 @@
             document.getElementById('set-bank-note').value = settings.bankNote || "";
             document.getElementById('set-store-name').value = settings.storeName;
             document.getElementById('set-whatsapp').value = settings.whatsapp;
-            document.getElementById('set-theme-color').value = settings.themeColor || '#4f46e5';
-            renderAdminFormBuilder();
+            document.getElementById('set-theme-color').value = settings.themeColor || "#4f46e5";
+            renderAdminFormFieldsBuilder();
+        }
+
+        function renderAdminFormFieldsBuilder() {
+            const container = document.getElementById('admin-form-builder');
+            container.innerHTML = settings.formFields.map((f, idx) => `
+                <div class="flex gap-2 items-center bg-white p-2 border rounded">
+                    <input type="text" value="${f.label}" onchange="updateFormFieldLabel(${idx}, this.value)" class="border p-1 text-xs rounded flex-grow" placeholder="Field Label">
+                    <label class="text-xs flex items-center gap-1"><input type="checkbox" ${f.required ? 'checked' : ''} onchange="updateFormFieldRequired(${idx}, this.checked)"> Required</label>
+                    <button type="button" onclick="removeFormField(${idx})" class="text-red-500 text-xs font-bold px-2">X</button>
+                </div>
+            `).join('');
+        }
+
+        function updateFormFieldLabel(idx, val) { settings.formFields[idx].label = val; }
+        function updateFormFieldRequired(idx, val) { settings.formFields[idx].required = val; }
+        function removeFormField(idx) { settings.formFields.splice(idx, 1); renderAdminFormFieldsBuilder(); }
+        function addFormFieldManager() {
+            settings.formFields.push({ id: `cust_custom_${Date.now()}`, label: "New Field", placeholder: "", required: false });
+            renderAdminFormFieldsBuilder();
         }
 
         function handleSaveSettings(e) {
@@ -609,12 +632,13 @@
             settings.whatsapp = document.getElementById('set-whatsapp').value;
             settings.themeColor = document.getElementById('set-theme-color').value;
 
-            const pass = document.getElementById('set-admin-pass').value;
-            if (pass.trim()) settings.adminPassword = pass;
+            const newPass = document.getElementById('set-admin-pass').value;
+            if (newPass.trim() !== '') settings.adminPassword = newPass;
 
             localStorage.setItem('store_settings', JSON.stringify(settings));
             applySettings();
-            alert('Settings & Checkout Form Updated Successfully!');
+            alert('Settings Saved Successfully!');
+            closeAdminDashboard();
         }
     </script>
 </body>

@@ -3,22 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="page-title">Laba Kade</title>
+    <title id="page-title">Loading Store...</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Dynamic CSS Variables for Theme Color -->
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --primary-hover: #4338ca;
+            --primary-light: #e0e7ff;
+        }
+        .bg-theme { background-color: var(--primary-color) !important; }
+        .bg-theme-hover:hover { background-color: var(--primary-hover) !important; }
+        .text-theme { color: var(--primary-color) !important; }
+        .border-theme { border-color: var(--primary-color) !important; }
+        .bg-theme-light { background-color: var(--primary-light) !important; }
+    </style>
+
+    <!-- Firebase SDKs (v9 Compat for easy single-file script inclusion) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 </head>
 <body class="bg-gray-50 font-sans min-h-screen flex flex-col justify-between">
 
     <!-- Navigation Bar -->
     <nav class="bg-white shadow-md sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-            <h1 id="brand-name" class="text-2xl font-bold text-indigo-600 cursor-pointer" onclick="filterCategory('All')">
+            <h1 id="brand-name" class="text-2xl font-bold text-theme cursor-pointer" onclick="filterCategory('All')">
                 Store Name
             </h1>
             <div class="flex items-center space-x-4">
-                <button onclick="toggleCart()" class="relative p-2 text-gray-700 hover:text-indigo-600 transition">
+                <button onclick="toggleCart()" class="relative p-2 text-gray-700 hover:text-theme transition">
                     <i class="fa-solid fa-cart-shopping text-2xl"></i>
                     <span id="cart-count" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">0</span>
                 </button>
@@ -29,17 +47,17 @@
     <!-- Main Content Container -->
     <main class="max-w-7xl mx-auto px-4 py-8 flex-grow w-full">
         <!-- Hero Banner -->
-        <div class="bg-indigo-600 text-white rounded-2xl p-8 mb-8 shadow-lg flex flex-col md:flex-row justify-between items-center">
+        <div id="hero-banner" class="bg-theme text-white rounded-2xl p-8 mb-8 shadow-lg flex flex-col md:flex-row justify-between items-center transition-colors duration-300">
             <div>
                 <h2 id="banner-title" class="text-3xl md:text-4xl font-extrabold mb-2">Welcome to Our Store</h2>
-                <p class="text-indigo-100 text-lg">Best products at affordable prices with easy bank transfer checkout.</p>
+                <p class="opacity-90 text-lg">Best products at affordable prices with easy bank transfer checkout.</p>
             </div>
         </div>
 
         <!-- Search & Filter Section -->
         <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
             <div class="flex space-x-2 overflow-x-auto pb-2 w-full md:w-auto" id="category-filters">
-                <button onclick="filterCategory('All')" class="px-4 py-2 bg-indigo-600 text-white rounded-full text-sm font-medium hover:bg-indigo-700">All Items</button>
+                <button onclick="filterCategory('All')" class="px-4 py-2 bg-theme text-white rounded-full text-sm font-medium">All Items</button>
             </div>
             <div class="relative w-full md:w-64">
                 <input type="text" id="search-input" oninput="handleSearch()" placeholder="Search products..." class="w-full pl-10 pr-4 py-2 border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
@@ -58,19 +76,19 @@
         <div class="max-w-7xl mx-auto px-4 flex justify-between items-center">
             <p>&copy; <span id="footer-year"></span> <span id="footer-brand">Store Name</span>. All rights reserved.</p>
             
-            <!-- Hidden Admin Access Button (Subtle Lock Icon) -->
-            <button onclick="openAdminAuth()" class="text-gray-600 hover:text-gray-300 transition text-xs opacity-30 hover:opacity-100" title="Admin Portal">
+            <!-- Hidden Admin Access Button -->
+            <button onclick="openAdminAuth()" class="text-gray-500 hover:text-white transition text-sm opacity-50 hover:opacity-100 p-2" title="Admin Portal">
                 <i class="fa-solid fa-lock"></i>
             </button>
         </div>
     </footer>
 
-    <!-- CART DRAWER / MODAL -->
+    <!-- CART DRAWER -->
     <div id="cart-drawer" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden transition-opacity">
         <div class="fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-xl flex flex-col justify-between">
             <div class="p-4 border-b flex justify-between items-center">
                 <h3 class="text-lg font-bold text-gray-800">Your Shopping Cart</h3>
-                <button onclick="toggleCart()" class="text-gray-500 hover:text-gray-700 text-xl">&times;</button>
+                <button onclick="toggleCart()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
             </div>
 
             <div id="cart-items" class="p-4 flex-grow overflow-y-auto space-y-4">
@@ -82,7 +100,7 @@
                     <span>Total:</span>
                     <span id="cart-total">Rs. 0</span>
                 </div>
-                <button onclick="openCheckoutModal()" class="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition">
+                <button onclick="openCheckoutModal()" class="w-full bg-theme text-white py-3 rounded-lg font-semibold bg-theme-hover transition">
                     Proceed to Checkout
                 </button>
             </div>
@@ -97,36 +115,36 @@
             <h3 class="text-2xl font-bold text-gray-800 mb-4">Complete Your Order</h3>
 
             <!-- Bank Transfer Details Box -->
-            <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-4 mb-6">
-                <h4 class="font-bold text-indigo-900 mb-2 flex items-center gap-2">
+            <div class="bg-theme-light border border-theme rounded-xl p-4 mb-6">
+                <h4 class="font-bold text-theme mb-2 flex items-center gap-2">
                     <i class="fa-solid fa-university"></i> Bank Transfer Details
                 </h4>
-                <div class="text-sm text-indigo-800 space-y-1">
+                <div class="text-sm text-gray-800 space-y-1">
                     <p><strong>Bank:</strong> <span id="checkout-bank-name">-</span></p>
                     <p><strong>Account Name:</strong> <span id="checkout-acc-name">-</span></p>
-                    <p><strong>Account No:</strong> <span id="checkout-acc-no" class="font-mono bg-white px-2 py-0.5 rounded border border-indigo-200">-</span></p>
+                    <p><strong>Account No:</strong> <span id="checkout-acc-no" class="font-mono bg-white px-2 py-0.5 rounded border">-</span></p>
                     <p><strong>Branch:</strong> <span id="checkout-branch">-</span></p>
                 </div>
-                <p class="text-xs text-indigo-600 mt-2">Please deposit/transfer the total amount to the account above and upload/keep the payment receipt ready.</p>
+                <p class="text-xs text-gray-600 mt-2">Please deposit/transfer the total amount to the account above and upload/keep the payment receipt ready.</p>
             </div>
 
             <!-- Customer Details Form -->
             <form id="checkout-form" onsubmit="handlePlaceOrder(event)" class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Full Name *</label>
-                    <input type="text" id="cust-name" required class="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                    <input type="text" id="cust-name" required class="w-full border rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Phone / WhatsApp Number *</label>
-                    <input type="tel" id="cust-phone" required placeholder="07XXXXXXXX" class="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                    <input type="tel" id="cust-phone" required placeholder="07XXXXXXXX" class="w-full border rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Delivery Address *</label>
-                    <textarea id="cust-address" required rows="2" class="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"></textarea>
+                    <textarea id="cust-address" required rows="2" class="w-full border rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Payment Notes / Reference No (Optional)</label>
-                    <input type="text" id="cust-ref" placeholder="e.g. Bank Reference / Slip details" class="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                    <input type="text" id="cust-ref" placeholder="e.g. Bank Reference / Slip details" class="w-full border rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500">
                 </div>
 
                 <div class="pt-2">
@@ -142,20 +160,20 @@
     <div id="admin-auth-modal" class="fixed inset-0 bg-black bg-opacity-60 z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-sm w-full p-6 text-center shadow-2xl relative">
             <button onclick="closeAdminAuth()" class="absolute right-4 top-4 text-gray-400 hover:text-gray-600 text-xl">&times;</button>
-            <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4 text-xl">
+            <div class="w-12 h-12 bg-theme-light text-theme rounded-full flex items-center justify-center mx-auto mb-4 text-xl">
                 <i class="fa-solid fa-user-shield"></i>
             </div>
             <h3 class="text-xl font-bold text-gray-800 mb-2">Admin Portal</h3>
             <p class="text-xs text-gray-500 mb-4">Enter password to access dashboard</p>
             
             <input type="password" id="admin-pass-input" placeholder="Password" class="w-full border rounded-lg p-2.5 text-center mb-4 text-sm outline-none focus:ring-2 focus:ring-indigo-500">
-            <button onclick="verifyAdminPassword()" class="w-full bg-indigo-600 text-white py-2.5 rounded-lg font-semibold hover:bg-indigo-700 transition">Login</button>
+            <button onclick="verifyAdminPassword()" class="w-full bg-theme text-white py-2.5 rounded-lg font-semibold bg-theme-hover transition">Login</button>
         </div>
     </div>
 
     <!-- ADMIN DASHBOARD MODAL -->
     <div id="admin-dashboard-modal" class="fixed inset-0 bg-black bg-opacity-60 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
+        <div class="bg-white rounded-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
             <!-- Dashboard Header -->
             <div class="bg-gray-900 text-white p-4 flex justify-between items-center">
                 <h3 class="font-bold text-lg flex items-center gap-2">
@@ -165,17 +183,19 @@
             </div>
 
             <!-- Admin Tabs -->
-            <div class="flex border-b bg-gray-100">
-                <button onclick="switchAdminTab('products')" id="tab-btn-products" class="px-6 py-3 font-semibold text-sm border-b-2 border-indigo-600 text-indigo-600 bg-white">Products</button>
-                <button onclick="switchAdminTab('settings')" id="tab-btn-settings" class="px-6 py-3 font-semibold text-sm border-b-2 border-transparent text-gray-600 hover:text-indigo-600">Store Settings & Password</button>
+            <div class="flex border-b bg-gray-100 overflow-x-auto">
+                <button onclick="switchAdminTab('products')" id="tab-btn-products" class="px-6 py-3 font-semibold text-sm border-b-2 border-theme text-theme bg-white">Products</button>
+                <button onclick="switchAdminTab('orders')" id="tab-btn-orders" class="px-6 py-3 font-semibold text-sm border-b-2 border-transparent text-gray-600 hover:text-theme">Orders List</button>
+                <button onclick="switchAdminTab('settings')" id="tab-btn-settings" class="px-6 py-3 font-semibold text-sm border-b-2 border-transparent text-gray-600 hover:text-theme">Store Settings & Appearance</button>
             </div>
 
             <div class="p-6 overflow-y-auto flex-grow">
                 <!-- TAB 1: PRODUCT MANAGEMENT -->
                 <div id="tab-products" class="space-y-6">
                     <div class="bg-gray-50 p-4 border rounded-xl space-y-4">
-                        <h4 class="font-bold text-gray-800 text-base">Add New Product</h4>
-                        <form id="add-product-form" onsubmit="handleAddProduct(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <h4 class="font-bold text-gray-800 text-base" id="prod-form-title">Add New Product</h4>
+                        <form id="add-product-form" onsubmit="handleAddOrUpdateProduct(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <input type="hidden" id="prod-id">
                             <div>
                                 <label class="block text-xs font-semibold text-gray-600">Product Title *</label>
                                 <input type="text" id="prod-title" required class="w-full border rounded p-2 text-sm">
@@ -186,18 +206,19 @@
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-gray-600">Category *</label>
-                                <input type="text" id="prod-category" required placeholder="e.g. Clothes, Electronics" class="w-full border rounded p-2 text-sm">
+                                <input type="text" id="prod-category" required placeholder="e.g. Clothing, Electronics" class="w-full border rounded p-2 text-sm">
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-gray-600">Image URL or Base64 *</label>
+                                <label class="block text-xs font-semibold text-gray-600">Image URL *</label>
                                 <input type="text" id="prod-image" required placeholder="https://..." class="w-full border rounded p-2 text-sm">
                             </div>
                             <div class="md:col-span-2">
                                 <label class="block text-xs font-semibold text-gray-600">Description</label>
                                 <textarea id="prod-desc" rows="2" class="w-full border rounded p-2 text-sm"></textarea>
                             </div>
-                            <div class="md:col-span-2">
-                                <button type="submit" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-indigo-700 text-sm">Add Product</button>
+                            <div class="md:col-span-2 flex gap-2">
+                                <button type="submit" id="prod-submit-btn" class="bg-theme text-white px-6 py-2 rounded-lg font-semibold text-sm bg-theme-hover">Save Product</button>
+                                <button type="button" onclick="resetProductForm()" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg font-semibold text-sm hover:bg-gray-400">Cancel</button>
                             </div>
                         </form>
                     </div>
@@ -224,14 +245,50 @@
                     </div>
                 </div>
 
-                <!-- TAB 2: STORE SETTINGS & SECURITY -->
+                <!-- TAB 2: ORDERS MANAGEMENT -->
+                <div id="tab-orders" class="hidden space-y-6">
+                    <h4 class="font-bold text-gray-800 text-base">Customer Orders Dashboard</h4>
+                    <div class="overflow-x-auto">
+                        <table class="w-full border-collapse border border-gray-200 text-left text-sm">
+                            <thead class="bg-gray-100 text-gray-700">
+                                <tr>
+                                    <th class="p-2 border">Date & Time</th>
+                                    <th class="p-2 border">Customer Info</th>
+                                    <th class="p-2 border">Items</th>
+                                    <th class="p-2 border">Total Amount</th>
+                                    <th class="p-2 border">Payment Ref</th>
+                                    <th class="p-2 border">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-orders-table">
+                                <!-- Dynamic orders rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- TAB 3: STORE SETTINGS & APPEARANCE -->
                 <div id="tab-settings" class="hidden space-y-6">
-                    <form id="store-settings-form" onsubmit="handleSaveSettings(event)" class="space-y-4 max-w-lg">
-                        <h4 class="font-bold text-gray-800 text-base border-b pb-2">Store Branding</h4>
+                    <form id="store-settings-form" onsubmit="handleSaveSettings(event)" class="space-y-4 max-w-xl">
+                        <h4 class="font-bold text-gray-800 text-base border-b pb-2">Store Branding & Appearance</h4>
+                        
                         <div>
                             <label class="block text-xs font-semibold text-gray-600">Store Name</label>
                             <input type="text" id="set-store-name" required class="w-full border rounded p-2 text-sm">
                         </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Website Theme Color (පාට)</label>
+                            <select id="set-theme-color" class="w-full border rounded p-2 text-sm">
+                                <option value="#4f46e5">Indigo (Default Blue-Purple)</option>
+                                <option value="#2563eb">Ocean Blue</option>
+                                <option value="#059669">Emerald Green</option>
+                                <option value="#dc2626">Crimson Red</option>
+                                <option value="#7c3aed">Royal Purple</option>
+                                <option value="#d97706">Amber Gold</option>
+                            </select>
+                        </div>
+
                         <div>
                             <label class="block text-xs font-semibold text-gray-600">WhatsApp Number (For receiving orders)</label>
                             <input type="text" id="set-whatsapp" placeholder="947XXXXXXXX" required class="w-full border rounded p-2 text-sm">
@@ -273,36 +330,35 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
-        // --- INITIAL DATA & LOCAL STORAGE SETUP ---
-        const DEFAULT_PRODUCTS = [
-            {
-                id: 1,
-                title: "Classic Cotton T-Shirt",
-                price: 2500,
-                category: "Clothing",
-                image: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=500&q=80",
-                description: "Premium high-quality cotton t-shirt for daily comfort."
-            },
-            {
-                id: 2,
-                title: "Smart Watch Series 5",
-                price: 8900,
-                category: "Electronics",
-                image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&q=80",
-                description: "Fitness tracker, heart rate monitor, full touchscreen."
-            },
-            {
-                id: 3,
-                title: "Casual Denim Jacket",
-                price: 6500,
-                category: "Clothing",
-                image: "https://images.unsplash.com/photo-1576995853123-5a10305d93c0?w=500&q=80",
-                description: "Stylish blue denim jacket with modern fit."
+        // Optional Firebase Configuration (For Global Real-time Sync across devices)
+        // Insert your Firebase config below to sync across device globally.
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "YOUR_APP_ID"
+        };
+
+        let db = null;
+        try {
+            if(firebaseConfig.apiKey !== "YOUR_API_KEY") {
+                firebase.initializeApp(firebaseConfig);
+                db = firebase.firestore();
             }
+        } catch(e) { console.warn("Firebase not configured. Running on local mode."); }
+
+        // --- DEFAULT DATA & INITIALIZATION ---
+        const DEFAULT_PRODUCTS = [
+            { id: '1', title: "Classic Cotton T-Shirt", price: 2500, category: "Clothing", image: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=500&q=80", description: "Premium high-quality cotton t-shirt." },
+            { id: '2', title: "Smart Watch Series 5", price: 8900, category: "Electronics", image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&q=80", description: "Fitness tracker, heart rate monitor." },
+            { id: '3', title: "Casual Denim Jacket", price: 6500, category: "Clothing", image: "https://images.unsplash.com/photo-1576995853123-5a10305d93c0?w=500&q=80", description: "Stylish blue denim jacket." }
         ];
 
         const DEFAULT_SETTINGS = {
             storeName: "My Online Store",
+            themeColor: "#4f46e5",
             whatsapp: "94770000000",
             bankName: "Commercial Bank",
             accName: "Store Owner",
@@ -313,29 +369,86 @@
 
         let products = JSON.parse(localStorage.getItem('products')) || DEFAULT_PRODUCTS;
         let settings = JSON.parse(localStorage.getItem('store_settings')) || DEFAULT_SETTINGS;
+        let orders = JSON.parse(localStorage.getItem('orders')) || [];
         let cart = JSON.parse(localStorage.getItem('cart')) || [];
         let selectedCategory = 'All';
 
-        // --- INIT STORE ---
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('footer-year').innerText = new Date().getFullYear();
             applySettings();
             renderProducts();
             renderCart();
             setupSecretAdminShortcut();
+            initRealtimeListeners();
         });
 
-        // --- APPLY STORE SETTINGS ---
+        // --- REAL-TIME SYNCING (Firebase + Local Storage Broadcast) ---
+        function initRealtimeListeners() {
+            if (db) {
+                // Listen to Realtime Settings
+                db.collection("settings").doc("config").onSnapshot(doc => {
+                    if (doc.exists) {
+                        settings = { ...DEFAULT_SETTINGS, ...doc.data() };
+                        localStorage.setItem('store_settings', JSON.stringify(settings));
+                        applySettings();
+                    }
+                });
+
+                // Listen to Realtime Products
+                db.collection("products").onSnapshot(snapshot => {
+                    let remoteProds = [];
+                    snapshot.forEach(doc => remoteProds.push({ id: doc.id, ...doc.data() }));
+                    if (remoteProds.length > 0) {
+                        products = remoteProds;
+                        localStorage.setItem('products', JSON.stringify(products));
+                        renderProducts();
+                    }
+                });
+
+                // Listen to Realtime Orders
+                db.collection("orders").onSnapshot(snapshot => {
+                    let remoteOrders = [];
+                    snapshot.forEach(doc => remoteOrders.push({ id: doc.id, ...doc.data() }));
+                    orders = remoteOrders;
+                    localStorage.setItem('orders', JSON.stringify(orders));
+                    renderAdminOrdersTable();
+                });
+            }
+
+            // Fallback for same-browser multi-tab sync
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'store_settings') { settings = JSON.parse(e.newValue); applySettings(); }
+                if (e.key === 'products') { products = JSON.parse(e.newValue); renderProducts(); }
+                if (e.key === 'orders') { orders = JSON.parse(e.newValue); renderAdminOrdersTable(); }
+            });
+        }
+
+        // --- APPLY STORE SETTINGS & THEME COLOR ---
         function applySettings() {
             document.getElementById('page-title').innerText = settings.storeName;
             document.getElementById('brand-name').innerText = settings.storeName;
             document.getElementById('footer-brand').innerText = settings.storeName;
 
-            // Update Checkout Modal Bank Info
+            // Update Theme CSS Variables Dynamically
+            const primaryHex = settings.themeColor || "#4f46e5";
+            document.documentElement.style.setProperty('--primary-color', primaryHex);
+            document.documentElement.style.setProperty('--primary-hover', adjustColorBrightness(primaryHex, -20));
+            document.documentElement.style.setProperty('--primary-light', adjustColorBrightness(primaryHex, 160));
+
+            // Checkout Info
             document.getElementById('checkout-bank-name').innerText = settings.bankName;
             document.getElementById('checkout-acc-name').innerText = settings.accName;
             document.getElementById('checkout-acc-no').innerText = settings.accNo;
             document.getElementById('checkout-branch').innerText = settings.branch;
+        }
+
+        function adjustColorBrightness(hex, percent) {
+            let num = parseInt(hex.replace('#',''), 16),
+                amt = Math.round(2.55 * percent),
+                R = (num >> 16) + amt,
+                G = (num >> 8 & 0x00FF) + amt,
+                B = (num & 0x0000FF) + amt;
+            return "#" + (0x1000000 + (R<255?R<1?0:R:255)*0x10000 + (G<255?G<1?0:G:255)*0x100 + (B<255?B<1?0:B:255)).toString(16).slice(1);
         }
 
         // --- PRODUCT RENDERING ---
@@ -346,11 +459,11 @@
             const filtered = products.filter(p => {
                 const matchesCat = selectedCategory === 'All' || p.category.toLowerCase() === selectedCategory.toLowerCase();
                 const searchTerm = document.getElementById('search-input')?.value.toLowerCase() || '';
-                const matchesSearch = p.title.toLowerCase().includes(searchTerm) || p.description.toLowerCase().includes(searchTerm);
+                const matchesSearch = p.title.toLowerCase().includes(searchTerm) || (p.description && p.description.toLowerCase().includes(searchTerm));
                 return matchesCat && matchesSearch;
             });
 
-            if(filtered.length === 0) {
+            if (filtered.length === 0) {
                 grid.innerHTML = `<div class="col-span-full text-center py-12 text-gray-500">No products found.</div>`;
                 return;
             }
@@ -367,11 +480,11 @@
                         <div class="p-4">
                             <h3 class="font-bold text-gray-800 text-lg mb-1">${prod.title}</h3>
                             <p class="text-xs text-gray-500 mb-3 line-clamp-2">${prod.description || ''}</p>
-                            <div class="text-indigo-600 font-extrabold text-xl">Rs. ${prod.price.toLocaleString()}</div>
+                            <div class="text-theme font-extrabold text-xl">Rs. ${Number(prod.price).toLocaleString()}</div>
                         </div>
                     </div>
                     <div class="p-4 pt-0">
-                        <button onclick="addToCart(${prod.id})" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-xl font-semibold text-sm transition flex items-center justify-center gap-2">
+                        <button onclick="addToCart('${prod.id}')" class="w-full bg-theme text-white py-2.5 rounded-xl font-semibold text-sm bg-theme-hover transition flex items-center justify-center gap-2">
                             <i class="fa-solid fa-cart-plus"></i> Add to Cart
                         </button>
                     </div>
@@ -387,53 +500,37 @@
             const categories = ['All', ...new Set(products.map(p => p.category))];
             
             container.innerHTML = categories.map(cat => `
-                <button onclick="filterCategory('${cat}')" class="px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition ${selectedCategory === cat ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}">
+                <button onclick="filterCategory('${cat}')" class="px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition ${selectedCategory === cat ? 'bg-theme text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}">
                     ${cat}
                 </button>
             `).join('');
         }
 
-        function filterCategory(cat) {
-            selectedCategory = cat;
-            renderProducts();
-        }
+        function filterCategory(cat) { selectedCategory = cat; renderProducts(); }
+        function handleSearch() { renderProducts(); }
 
-        function handleSearch() {
-            renderProducts();
-        }
-
-        // --- CART FUNCTIONS ---
+        // --- CART SYSTEM ---
         function addToCart(id) {
-            const prod = products.find(p => p.id === id);
+            const prod = products.find(p => String(p.id) === String(id));
             if (!prod) return;
 
-            const existing = cart.find(item => item.id === id);
-            if (existing) {
-                existing.qty += 1;
-            } else {
-                cart.push({ ...prod, qty: 1 });
-            }
+            const existing = cart.find(item => String(item.id) === String(id));
+            if (existing) { existing.qty += 1; } 
+            else { cart.push({ ...prod, qty: 1 }); }
 
-            saveCart();
-            renderCart();
-            toggleCart(true); // Open cart preview
+            saveCart(); renderCart(); toggleCart(true);
         }
 
         function updateCartQty(id, delta) {
-            const item = cart.find(i => i.id === id);
+            const item = cart.find(i => String(i.id) === String(id));
             if (!item) return;
 
             item.qty += delta;
-            if (item.qty <= 0) {
-                cart = cart.filter(i => i.id !== id);
-            }
-            saveCart();
-            renderCart();
+            if (item.qty <= 0) cart = cart.filter(i => String(i.id) !== String(id));
+            saveCart(); renderCart();
         }
 
-        function saveCart() {
-            localStorage.setItem('cart', JSON.stringify(cart));
-        }
+        function saveCart() { localStorage.setItem('cart', JSON.stringify(cart)); }
 
         function renderCart() {
             const cartItemsContainer = document.getElementById('cart-items');
@@ -457,13 +554,13 @@
                         <img src="${item.image}" class="w-12 h-12 rounded object-cover">
                         <div>
                             <h4 class="font-bold text-gray-800 text-sm">${item.title}</h4>
-                            <p class="text-xs text-indigo-600 font-semibold">Rs. ${item.price.toLocaleString()}</p>
+                            <p class="text-xs text-theme font-semibold">Rs. ${item.price.toLocaleString()}</p>
                         </div>
                     </div>
                     <div class="flex items-center space-x-2">
-                        <button onclick="updateCartQty(${item.id}, -1)" class="w-6 h-6 bg-gray-200 rounded font-bold hover:bg-gray-300">-</button>
+                        <button onclick="updateCartQty('${item.id}', -1)" class="w-6 h-6 bg-gray-200 rounded font-bold hover:bg-gray-300">-</button>
                         <span class="text-sm font-bold">${item.qty}</span>
-                        <button onclick="updateCartQty(${item.id}, 1)" class="w-6 h-6 bg-gray-200 rounded font-bold hover:bg-gray-300">+</button>
+                        <button onclick="updateCartQty('${item.id}', 1)" class="w-6 h-6 bg-gray-200 rounded font-bold hover:bg-gray-300">+</button>
                     </div>
                 </div>
             `).join('');
@@ -471,26 +568,18 @@
 
         function toggleCart(forceOpen = false) {
             const drawer = document.getElementById('cart-drawer');
-            if (forceOpen) {
-                drawer.classList.remove('hidden');
-            } else {
-                drawer.classList.toggle('hidden');
-            }
+            if (forceOpen) drawer.classList.remove('hidden');
+            else drawer.classList.toggle('hidden');
         }
 
-        // --- CHECKOUT & WHATSAPP INTEGRATION ---
+        // --- CHECKOUT & PLACE ORDER ---
         function openCheckoutModal() {
-            if (cart.length === 0) {
-                alert('Your cart is empty!');
-                return;
-            }
+            if (cart.length === 0) { alert('Your cart is empty!'); return; }
             toggleCart(false);
             document.getElementById('checkout-modal').classList.remove('hidden');
         }
 
-        function closeCheckoutModal() {
-            document.getElementById('checkout-modal').classList.add('hidden');
-        }
+        function closeCheckoutModal() { document.getElementById('checkout-modal').classList.add('hidden'); }
 
         function handlePlaceOrder(e) {
             e.preventDefault();
@@ -499,8 +588,24 @@
             const phone = document.getElementById('cust-phone').value;
             const address = document.getElementById('cust-address').value;
             const ref = document.getElementById('cust-ref').value;
-
             const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+
+            const newOrder = {
+                id: 'ORD-' + Date.now(),
+                date: new Date().toLocaleString(),
+                customerName: name,
+                phone: phone,
+                address: address,
+                ref: ref || 'N/A',
+                items: [...cart],
+                total: totalPrice,
+                status: 'Pending'
+            };
+
+            // Save Order to list and Firebase
+            orders.unshift(newOrder);
+            localStorage.setItem('orders', JSON.stringify(orders));
+            if (db) db.collection("orders").doc(newOrder.id).set(newOrder);
 
             let orderItemsText = cart.map((i, index) => `${index + 1}. ${i.title} (x${i.qty}) - Rs. ${(i.price * i.qty).toLocaleString()}`).join('\n');
 
@@ -509,79 +614,102 @@
             if (ref) message += `📝 Payment Ref: ${ref}\n`;
             message += `\n*Order Items:*\n${orderItemsText}\n\n`;
             message += `💰 *Total Amount: Rs. ${totalPrice.toLocaleString()}*\n\n`;
-            message += `--- Bank Account for Deposit ---\nBank: ${settings.bankName}\nAccount: ${settings.accNo} (${settings.accName})\nBranch: ${settings.branch}\n\n*Please attach your bank payment slip below:(Order එක complete කිරීමට පහතින් Bank slip එක upload කරන්න)*`;
+            message += `--- Bank Account ---\nBank: ${settings.bankName}\nAccount: ${settings.accNo} (${settings.accName})\nBranch: ${settings.branch}\n\n*Please attach your bank payment slip below:*`;
 
-            const encodedMessage = encodeURIComponent(message);
-            const whatsappUrl = `https://wa.me/${settings.whatsapp}?text=${encodedMessage}`;
+            const whatsappUrl = `https://wa.me/${settings.whatsapp}?text=${encodeURIComponent(message)}`;
 
-            // Clear Cart
-            cart = [];
-            saveCart();
-            renderCart();
-            closeCheckoutModal();
-
-            // Redirect to WhatsApp
+            cart = []; saveCart(); renderCart(); closeCheckoutModal();
             window.open(whatsappUrl, '_blank');
         }
 
-        // --- HIDDEN ADMIN PORTAL ACCESS ---
+        // --- ADMIN AUTH & DASHBOARD ---
         function setupSecretAdminShortcut() {
-            // Secret Shortcut: Ctrl + Shift + A
             document.addEventListener('keydown', (e) => {
-                if (e.ctrlKey && e.shiftKey && e.code === 'KeyA') {
-                    openAdminAuth();
-                }
+                if (e.ctrlKey && e.shiftKey && e.code === 'KeyA') openAdminAuth();
             });
         }
 
-        function openAdminAuth() {
-            document.getElementById('admin-auth-modal').classList.remove('hidden');
-            document.getElementById('admin-pass-input').focus();
-        }
-
-        function closeAdminAuth() {
-            document.getElementById('admin-auth-modal').classList.add('hidden');
-            document.getElementById('admin-pass-input').value = '';
-        }
+        function openAdminAuth() { document.getElementById('admin-auth-modal').classList.remove('hidden'); }
+        function closeAdminAuth() { document.getElementById('admin-auth-modal').classList.add('hidden'); }
 
         function verifyAdminPassword() {
             const input = document.getElementById('admin-pass-input').value;
             if (input === settings.adminPassword) {
-                closeAdminAuth();
-                openAdminDashboard();
-            } else {
-                alert('Incorrect Admin Password!');
-            }
+                closeAdminAuth(); openAdminDashboard();
+            } else { alert('Incorrect Admin Password!'); }
         }
 
-        // --- ADMIN DASHBOARD FUNCTIONS ---
         function openAdminDashboard() {
             document.getElementById('admin-dashboard-modal').classList.remove('hidden');
             renderAdminProductsTable();
+            renderAdminOrdersTable();
             populateSettingsForm();
         }
 
-        function closeAdminDashboard() {
-            document.getElementById('admin-dashboard-modal').classList.add('hidden');
-        }
+        function closeAdminDashboard() { document.getElementById('admin-dashboard-modal').classList.add('hidden'); }
 
         function switchAdminTab(tab) {
-            const btnProd = document.getElementById('tab-btn-products');
-            const btnSet = document.getElementById('tab-btn-settings');
-            const tabProd = document.getElementById('tab-products');
-            const tabSet = document.getElementById('tab-settings');
+            ['products', 'orders', 'settings'].forEach(t => {
+                const btn = document.getElementById(`tab-btn-${t}`);
+                const view = document.getElementById(`tab-${t}`);
+                if (t === tab) {
+                    view.classList.remove('hidden');
+                    btn.className = "px-6 py-3 font-semibold text-sm border-b-2 border-theme text-theme bg-white";
+                } else {
+                    view.classList.add('hidden');
+                    btn.className = "px-6 py-3 font-semibold text-sm border-b-2 border-transparent text-gray-600 hover:text-theme";
+                }
+            });
+        }
 
-            if (tab === 'products') {
-                tabProd.classList.remove('hidden');
-                tabSet.classList.add('hidden');
-                btnProd.className = "px-6 py-3 font-semibold text-sm border-b-2 border-indigo-600 text-indigo-600 bg-white";
-                btnSet.className = "px-6 py-3 font-semibold text-sm border-b-2 border-transparent text-gray-600 hover:text-indigo-600";
-            } else {
-                tabProd.classList.add('hidden');
-                tabSet.classList.remove('hidden');
-                btnSet.className = "px-6 py-3 font-semibold text-sm border-b-2 border-indigo-600 text-indigo-600 bg-white";
-                btnProd.className = "px-6 py-3 font-semibold text-sm border-b-2 border-transparent text-gray-600 hover:text-indigo-600";
-            }
+        // --- ADMIN: PRODUCT MANAGEMENT ---
+        function handleAddOrUpdateProduct(e) {
+            e.preventDefault();
+            const id = document.getElementById('prod-id').value || String(Date.now());
+            const title = document.getElementById('prod-title').value;
+            const price = parseFloat(document.getElementById('prod-price').value);
+            const category = document.getElementById('prod-category').value;
+            const image = document.getElementById('prod-image').value;
+            const description = document.getElementById('prod-desc').value;
+
+            const prodObj = { id, title, price, category, image, description };
+
+            const existingIdx = products.findIndex(p => String(p.id) === String(id));
+            if (existingIdx > -1) products[existingIdx] = prodObj;
+            else products.push(prodObj);
+
+            localStorage.setItem('products', JSON.stringify(products));
+            if (db) db.collection("products").doc(id).set(prodObj);
+
+            resetProductForm(); renderAdminProductsTable(); renderProducts();
+        }
+
+        function editProduct(id) {
+            const prod = products.find(p => String(p.id) === String(id));
+            if (!prod) return;
+            document.getElementById('prod-id').value = prod.id;
+            document.getElementById('prod-title').value = prod.title;
+            document.getElementById('prod-price').value = prod.price;
+            document.getElementById('prod-category').value = prod.category;
+            document.getElementById('prod-image').value = prod.image;
+            document.getElementById('prod-desc').value = prod.description || '';
+            document.getElementById('prod-form-title').innerText = "Edit Product";
+            document.getElementById('prod-submit-btn').innerText = "Update Product";
+        }
+
+        function deleteProduct(id) {
+            if (!confirm('Are you sure you want to delete this product?')) return;
+            products = products.filter(p => String(p.id) !== String(id));
+            localStorage.setItem('products', JSON.stringify(products));
+            if (db) db.collection("products").doc(String(id)).delete();
+            renderAdminProductsTable(); renderProducts();
+        }
+
+        function resetProductForm() {
+            document.getElementById('add-product-form').reset();
+            document.getElementById('prod-id').value = '';
+            document.getElementById('prod-form-title').innerText = "Add New Product";
+            document.getElementById('prod-submit-btn').innerText = "Save Product";
         }
 
         function renderAdminProductsTable() {
@@ -590,63 +718,72 @@
                 <tr>
                     <td class="p-2 border"><img src="${p.image}" class="w-10 h-10 object-cover rounded"></td>
                     <td class="p-2 border font-semibold">${p.title}</td>
-                    <td class="p-2 border">Rs. ${p.price.toLocaleString()}</td>
+                    <td class="p-2 border">Rs. ${Number(p.price).toLocaleString()}</td>
                     <td class="p-2 border">${p.category}</td>
-                    <td class="p-2 border">
-                        <button onclick="deleteProduct(${p.id})" class="text-red-600 hover:text-red-800 text-xs font-bold">Delete</button>
+                    <td class="p-2 border space-x-2">
+                        <button onclick="editProduct('${p.id}')" class="text-blue-600 hover:underline text-xs"><i class="fa-solid fa-pen"></i> Edit</button>
+                        <button onclick="deleteProduct('${p.id}')" class="text-red-600 hover:underline text-xs"><i class="fa-solid fa-trash"></i> Delete</button>
                     </td>
                 </tr>
             `).join('');
         }
 
-        function handleAddProduct(e) {
-            e.preventDefault();
-            const title = document.getElementById('prod-title').value;
-            const price = parseFloat(document.getElementById('prod-price').value);
-            const category = document.getElementById('prod-category').value;
-            const image = document.getElementById('prod-image').value;
-            const desc = document.getElementById('prod-desc').value;
+        // --- ADMIN: ORDERS DASHBOARD ---
+        function renderAdminOrdersTable() {
+            const table = document.getElementById('admin-orders-table');
+            if (orders.length === 0) {
+                table.innerHTML = `<tr><td colspan="6" class="text-center p-4 text-gray-500">No orders received yet.</td></tr>`;
+                return;
+            }
 
-            const newProd = {
-                id: Date.now(),
-                title,
-                price,
-                category,
-                image,
-                description: desc
-            };
-
-            products.push(newProd);
-            localStorage.setItem('products', JSON.stringify(products));
-            
-            document.getElementById('add-product-form').reset();
-            renderAdminProductsTable();
-            renderProducts();
-            alert('Product added successfully!');
+            table.innerHTML = orders.map(o => `
+                <tr>
+                    <td class="p-2 border text-xs">${o.date}</td>
+                    <td class="p-2 border">
+                        <div class="font-bold text-gray-800">${o.customerName}</div>
+                        <div class="text-xs text-gray-600">${o.phone}</div>
+                        <div class="text-xs text-gray-500">${o.address}</div>
+                    </td>
+                    <td class="p-2 border text-xs">
+                        ${o.items.map(i => `<div>• ${i.title} (x${i.qty})</div>`).join('')}
+                    </td>
+                    <td class="p-2 border font-bold text-theme">Rs. ${Number(o.total).toLocaleString()}</td>
+                    <td class="p-2 border text-xs">${o.ref || 'N/A'}</td>
+                    <td class="p-2 border">
+                        <select onchange="updateOrderStatus('${o.id}', this.value)" class="text-xs border rounded p-1">
+                            <option value="Pending" ${o.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                            <option value="Completed" ${o.status === 'Completed' ? 'selected' : ''}>Completed</option>
+                            <option value="Cancelled" ${o.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+                        </select>
+                    </td>
+                </tr>
+            `).join('');
         }
 
-        function deleteProduct(id) {
-            if (confirm('Are you sure you want to delete this product?')) {
-                products = products.filter(p => p.id !== id);
-                localStorage.setItem('products', JSON.stringify(products));
-                renderAdminProductsTable();
-                renderProducts();
+        function updateOrderStatus(orderId, newStatus) {
+            const ord = orders.find(o => String(o.id) === String(orderId));
+            if (ord) {
+                ord.status = newStatus;
+                localStorage.setItem('orders', JSON.stringify(orders));
+                if (db) db.collection("orders").doc(orderId).update({ status: newStatus });
             }
         }
 
+        // --- ADMIN: STORE SETTINGS & THEME ---
         function populateSettingsForm() {
             document.getElementById('set-store-name').value = settings.storeName;
+            document.getElementById('set-theme-color').value = settings.themeColor || "#4f46e5";
             document.getElementById('set-whatsapp').value = settings.whatsapp;
             document.getElementById('set-bank-name').value = settings.bankName;
             document.getElementById('set-acc-name').value = settings.accName;
             document.getElementById('set-acc-no').value = settings.accNo;
             document.getElementById('set-branch').value = settings.branch;
-            document.getElementById('set-admin-pass').value = '';
         }
 
         function handleSaveSettings(e) {
             e.preventDefault();
             settings.storeName = document.getElementById('set-store-name').value;
+            settings.themeColor = document.getElementById('set-theme-color').value;
             settings.whatsapp = document.getElementById('set-whatsapp').value;
             settings.bankName = document.getElementById('set-bank-name').value;
             settings.accName = document.getElementById('set-acc-name').value;
@@ -654,13 +791,13 @@
             settings.branch = document.getElementById('set-branch').value;
 
             const newPass = document.getElementById('set-admin-pass').value;
-            if (newPass.trim() !== '') {
-                settings.adminPassword = newPass;
-            }
+            if (newPass) settings.adminPassword = newPass;
 
             localStorage.setItem('store_settings', JSON.stringify(settings));
+            if (db) db.collection("settings").doc("config").set(settings);
+
             applySettings();
-            alert('Store settings & Password updated successfully!');
+            alert('Settings saved successfully!');
         }
     </script>
 </body>

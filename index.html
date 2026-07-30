@@ -2,13 +2,13 @@
 <html lang="si">
 <head>
     <meta charset="UTF-8">
-    <!-- Viewport එක min-width එකට lock කර ඇත. එවිට ෆෝන් එකෙන් බැලුවත් Desktop layout එකම zoom-out වී පෙනේ -->
-    <meta name="viewport" content="width=1200, initial-scale=0.3, shrink-to-fit=no">
+    <!-- Responsive Viewport for Mobile & Desktop -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="page-title">Loading Store...</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-fontawesome/6.5.1/css/all.min.css">
     
     <!-- Dynamic CSS Variables for Theme Color -->
     <style>
@@ -16,9 +16,6 @@
             --primary-color: #4f46e5;
             --primary-hover: #4338ca;
             --primary-light: #e0e7ff;
-        }
-        body {
-            min-width: 1200px; /* Layout එක ෆෝන් එකේ කඩෙන්නේ නැතිවෙන්න fixed width එකක් ලබා දී ඇත */
         }
         .bg-theme { background-color: var(--primary-color) !important; }
         .bg-theme-hover:hover { background-color: var(--primary-hover) !important; }
@@ -35,11 +32,11 @@
 
     <!-- Navigation Bar -->
     <nav class="bg-white shadow-md sticky top-0 z-40">
-        <div class="w-[1200px] mx-auto px-4 py-4 flex justify-between items-center">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
             <div class="flex items-center space-x-3 cursor-pointer" onclick="filterCategory('All')">
                 <img id="store-logo" src="" alt="Logo" class="h-10 w-auto object-contain hidden">
-                <h1 id="brand-name" class="text-2xl font-bold text-theme">
-                    Store Name
+                <h1 id="brand-name" class="text-xl md:text-2xl font-bold text-theme">
+                    My Web Store
                 </h1>
             </div>
             <div class="flex items-center space-x-4">
@@ -52,38 +49,36 @@
     </nav>
 
     <!-- Main Content Container -->
-    <main class="w-[1200px] mx-auto px-4 py-8 flex-grow">
+    <main class="max-w-7xl mx-auto px-4 py-8 flex-grow w-full">
         <!-- Hero Banner -->
-        <div id="hero-banner" class="bg-theme text-white rounded-2xl p-8 mb-8 shadow-lg flex flex-row justify-between items-center transition-colors duration-300">
+        <div id="hero-banner" class="bg-theme text-white rounded-2xl p-6 md:p-8 mb-8 shadow-lg flex flex-col md:flex-row justify-between items-center transition-colors duration-300">
             <div>
-                <h2 id="banner-title" class="text-4xl font-extrabold mb-2">Welcome to Our Store</h2>
-                <p class="opacity-90 text-lg">Best products at affordable prices with easy bank transfer checkout.</p>
+                <h2 id="banner-title" class="text-2xl md:text-4xl font-extrabold mb-2">Welcome to Our Store</h2>
+                <p class="opacity-90 text-sm md:text-lg">Best products at affordable prices with easy bank transfer checkout.</p>
             </div>
         </div>
 
         <!-- Search & Filter Section -->
-        <div class="flex flex-row justify-between items-center gap-4 mb-8">
-            <div class="flex space-x-2 overflow-x-auto pb-2 w-auto" id="category-filters">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
+            <div class="flex space-x-2 overflow-x-auto pb-2 w-full md:w-auto" id="category-filters">
                 <button onclick="filterCategory('All')" class="px-4 py-2 bg-theme text-white rounded-full text-sm font-medium">All Items</button>
             </div>
-            <div class="relative w-64">
+            <div class="relative w-full md:w-64">
                 <input type="text" id="search-input" oninput="handleSearch()" placeholder="Search products..." class="w-full pl-10 pr-4 py-2 border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
                 <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-gray-400"></i>
             </div>
         </div>
 
-        <!-- Product Grid (සම ලෙස Grid-cols-4 සාදා ඇත) -->
-        <div id="product-grid" class="grid grid-cols-4 gap-6">
+        <!-- Product Grid -->
+        <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             <!-- Products rendered dynamically -->
         </div>
     </main>
 
     <!-- Footer -->
     <footer class="bg-gray-800 text-gray-400 py-6 mt-12 text-center text-sm relative">
-        <div class="w-[1200px] mx-auto px-4 flex justify-between items-center">
-            <p>&copy; <span id="footer-year"></span> <span id="footer-brand">Store Name</span>. All rights reserved.</p>
-            
-            <!-- Hidden Admin Access Button -->
+        <div class="max-w-7xl mx-auto px-4 flex justify-between items-center">
+            <p>&copy; <span id="footer-year"></span> <span id="footer-brand">My Web Store</span>. All rights reserved.</p>
             <button onclick="openAdminAuth()" class="text-gray-500 hover:text-white transition text-sm opacity-50 hover:opacity-100 p-2" title="Admin Portal">
                 <i class="fa-solid fa-lock"></i>
             </button>
@@ -92,16 +87,12 @@
 
     <!-- CART DRAWER -->
     <div id="cart-drawer" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden transition-opacity">
-        <div class="fixed right-0 top-0 h-full w-[400px] bg-white shadow-xl flex flex-col justify-between">
+        <div class="fixed right-0 top-0 h-full w-full max-w-sm bg-white shadow-xl flex flex-col justify-between">
             <div class="p-4 border-b flex justify-between items-center">
                 <h3 class="text-lg font-bold text-gray-800">Your Shopping Cart</h3>
                 <button onclick="toggleCart()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
             </div>
-
-            <div id="cart-items" class="p-4 flex-grow overflow-y-auto space-y-4">
-                <!-- Cart items list dynamically populated -->
-            </div>
-
+            <div id="cart-items" class="p-4 flex-grow overflow-y-auto space-y-4"></div>
             <div class="p-4 border-t bg-gray-50">
                 <div class="flex justify-between font-bold text-lg text-gray-800 mb-4">
                     <span>Total:</span>
@@ -116,26 +107,22 @@
 
     <!-- CHECKOUT MODAL -->
     <div id="checkout-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl w-[500px] max-h-[90vh] overflow-y-auto p-6 relative shadow-2xl">
+        <div class="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto p-6 relative shadow-2xl">
             <button onclick="closeCheckoutModal()" class="absolute right-4 top-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
-            
             <h3 class="text-2xl font-bold text-gray-800 mb-4">Complete Your Order</h3>
 
-            <!-- Bank Transfer Details Box -->
             <div class="bg-theme-light border border-theme rounded-xl p-4 mb-6">
                 <h4 class="font-bold text-theme mb-2 flex items-center gap-2">
                     <i class="fa-solid fa-university"></i> Bank Transfer Details
                 </h4>
                 <div class="text-sm text-gray-800 space-y-1">
-                    <p><strong>Bank:</strong> <span id="checkout-bank-name">-</span></p>
-                    <p><strong>Account Name:</strong> <span id="checkout-acc-name">-</span></p>
-                    <p><strong>Account No:</strong> <span id="checkout-acc-no" class="font-mono bg-white px-2 py-0.5 rounded border">-</span></p>
-                    <p><strong>Branch:</strong> <span id="checkout-branch">-</span></p>
+                    <p><strong>Bank:</strong> <span id="checkout-bank-name">Commercial Bank</span></p>
+                    <p><strong>Account Name:</strong> <span id="checkout-acc-name">Store Owner</span></p>
+                    <p><strong>Account No:</strong> <span id="checkout-acc-no" class="font-mono bg-white px-2 py-0.5 rounded border">8000123456</span></p>
+                    <p><strong>Branch:</strong> <span id="checkout-branch">Colombo</span></p>
                 </div>
-                <p class="text-xs text-gray-600 mt-2">Please deposit/transfer the total amount to the account above and upload/keep the payment receipt ready.</p>
             </div>
 
-            <!-- Customer Details Form -->
             <form id="checkout-form" onsubmit="handlePlaceOrder(event)" class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Full Name *</label>
@@ -150,203 +137,95 @@
                     <textarea id="cust-address" required rows="2" class="w-full border rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Payment Notes / Reference No (Optional)</label>
-                    <input type="text" id="cust-ref" placeholder="e.g. Bank Reference / Slip details" class="w-full border rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500">
+                    <label class="block text-sm font-medium text-gray-700">Payment Notes / Reference No</label>
+                    <input type="text" id="cust-ref" placeholder="e.g. Bank Reference No" class="w-full border rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500">
                 </div>
-
-                <div class="pt-2">
-                    <button type="submit" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold text-lg hover:bg-green-700 transition flex items-center justify-center gap-2">
-                        <i class="fa-brands fa-whatsapp text-2xl"></i> Place Order via WhatsApp
-                    </button>
-                </div>
+                <button type="submit" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold text-lg hover:bg-green-700 transition flex items-center justify-center gap-2">
+                    <i class="fa-brands fa-whatsapp text-2xl"></i> Place Order via WhatsApp
+                </button>
             </form>
         </div>
     </div>
 
-    <!-- ADMIN AUTHENTICATION MODAL -->
+    <!-- ADMIN AUTH MODAL -->
     <div id="admin-auth-modal" class="fixed inset-0 bg-black bg-opacity-60 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl w-[350px] p-6 text-center shadow-2xl relative">
+        <div class="bg-white rounded-2xl w-full max-w-sm p-6 text-center shadow-2xl relative">
             <button onclick="closeAdminAuth()" class="absolute right-4 top-4 text-gray-400 hover:text-gray-600 text-xl">&times;</button>
-            <div class="w-12 h-12 bg-theme-light text-theme rounded-full flex items-center justify-center mx-auto mb-4 text-xl">
-                <i class="fa-solid fa-user-shield"></i>
-            </div>
             <h3 class="text-xl font-bold text-gray-800 mb-2">Admin Portal</h3>
-            <p class="text-xs text-gray-500 mb-4">Enter password to access dashboard</p>
-            
+            <p class="text-xs text-gray-500 mb-4">(Default Password: <strong>admin123</strong>)</p>
             <input type="password" id="admin-pass-input" placeholder="Password" class="w-full border rounded-lg p-2.5 text-center mb-4 text-sm outline-none focus:ring-2 focus:ring-indigo-500">
             <button onclick="verifyAdminPassword()" class="w-full bg-theme text-white py-2.5 rounded-lg font-semibold bg-theme-hover transition">Login</button>
         </div>
     </div>
 
     <!-- ADMIN DASHBOARD MODAL -->
-    <div id="admin-dashboard-modal" class="fixed inset-0 bg-black bg-opacity-60 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl w-[1000px] max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
-            <!-- Dashboard Header -->
+    <div id="admin-dashboard-modal" class="fixed inset-0 bg-black bg-opacity-60 z-50 hidden flex items-center justify-center p-2 md:p-4">
+        <div class="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
             <div class="bg-gray-900 text-white p-4 flex justify-between items-center">
-                <h3 class="font-bold text-lg flex items-center gap-2">
-                    <i class="fa-solid fa-sliders"></i> Store Administration
-                </h3>
+                <h3 class="font-bold text-lg"><i class="fa-solid fa-sliders"></i> Store Administration</h3>
                 <button onclick="closeAdminDashboard()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
             </div>
-
-            <!-- Admin Tabs -->
             <div class="flex border-b bg-gray-100 overflow-x-auto">
                 <button onclick="switchAdminTab('products')" id="tab-btn-products" class="px-6 py-3 font-semibold text-sm border-b-2 border-theme text-theme bg-white">Products</button>
-                <button onclick="switchAdminTab('orders')" id="tab-btn-orders" class="px-6 py-3 font-semibold text-sm border-b-2 border-transparent text-gray-600 hover:text-theme">Orders List</button>
-                <button onclick="switchAdminTab('settings')" id="tab-btn-settings" class="px-6 py-3 font-semibold text-sm border-b-2 border-transparent text-gray-600 hover:text-theme">Store Settings & Appearance</button>
+                <button onclick="switchAdminTab('settings')" id="tab-btn-settings" class="px-6 py-3 font-semibold text-sm border-b-2 border-transparent text-gray-600">Store Settings</button>
             </div>
-
-            <div class="p-6 overflow-y-auto flex-grow">
-                <!-- TAB 1: PRODUCT MANAGEMENT -->
+            <div class="p-4 md:p-6 overflow-y-auto flex-grow">
+                <!-- Products Tab -->
                 <div id="tab-products" class="space-y-6">
-                    <div class="bg-gray-50 p-4 border rounded-xl space-y-4">
-                        <h4 class="font-bold text-gray-800 text-base" id="prod-form-title">Add New Product</h4>
-                        <form id="add-product-form" onsubmit="handleAddOrUpdateProduct(event)" class="grid grid-cols-2 gap-4">
-                            <input type="hidden" id="prod-id">
-                            <div>
-                                <label class="block text-xs font-semibold text-gray-600">Product Title *</label>
-                                <input type="text" id="prod-title" required class="w-full border rounded p-2 text-sm">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-semibold text-gray-600">Price (Rs.) *</label>
-                                <input type="number" id="prod-price" required class="w-full border rounded p-2 text-sm">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-semibold text-gray-600">Category *</label>
-                                <input type="text" id="prod-category" required placeholder="e.g. Clothing, Electronics" class="w-full border rounded p-2 text-sm">
-                            </div>
-
-                            <div>
-                                <label class="block text-xs font-semibold text-gray-600 mb-1">Product Image *</label>
-                                <input type="file" id="prod-file-input" accept="image/*" onchange="previewImageFile(event)" class="w-full border rounded p-1 text-sm bg-white cursor-pointer">
-                                <input type="hidden" id="prod-image-base64">
-                                <div id="image-preview-container" class="mt-2 hidden flex items-center gap-3">
-                                    <img id="image-preview" src="" class="w-16 h-16 object-cover rounded border">
-                                    <span class="text-xs text-green-600 font-semibold"><i class="fa-solid fa-check"></i> Image Loaded</span>
-                                </div>
-                            </div>
-
-                            <div class="col-span-2">
-                                <label class="block text-xs font-semibold text-gray-600">Description</label>
-                                <textarea id="prod-desc" rows="2" class="w-full border rounded p-2 text-sm"></textarea>
-                            </div>
-                            <div class="col-span-2 flex gap-2">
-                                <button type="submit" id="prod-submit-btn" class="bg-theme text-white px-6 py-2 rounded-lg font-semibold text-sm bg-theme-hover">Save Product</button>
-                                <button type="button" onclick="resetProductForm()" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg font-semibold text-sm hover:bg-gray-400">Cancel</button>
-                            </div>
-                        </form>
-                    </div>
-
-                    <!-- Existing Products Table -->
-                    <div>
-                        <h4 class="font-bold text-gray-800 mb-3">Existing Products</h4>
-                        <div class="overflow-x-auto">
-                            <table class="w-full border-collapse border border-gray-200 text-left text-sm">
-                                <thead class="bg-gray-100 text-gray-700">
-                                    <tr>
-                                        <th class="p-2 border">Image</th>
-                                        <th class="p-2 border">Title</th>
-                                        <th class="p-2 border">Price</th>
-                                        <th class="p-2 border">Category</th>
-                                        <th class="p-2 border">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="admin-products-table">
-                                    <!-- Dynamic rows -->
-                                </tbody>
-                            </table>
+                    <form id="add-product-form" onsubmit="handleAddOrUpdateProduct(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-4 border rounded-xl">
+                        <input type="hidden" id="prod-id">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600">Product Title *</label>
+                            <input type="text" id="prod-title" required class="w-full border rounded p-2 text-sm">
                         </div>
-                    </div>
-                </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600">Price (Rs.) *</label>
+                            <input type="number" id="prod-price" required class="w-full border rounded p-2 text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600">Category *</label>
+                            <input type="text" id="prod-category" required class="w-full border rounded p-2 text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600">Image File/URL *</label>
+                            <input type="file" id="prod-file-input" accept="image/*" onchange="previewImageFile(event)" class="w-full border rounded p-1 text-sm bg-white">
+                            <input type="hidden" id="prod-image-base64">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-semibold text-gray-600">Description</label>
+                            <textarea id="prod-desc" rows="2" class="w-full border rounded p-2 text-sm"></textarea>
+                        </div>
+                        <div class="md:col-span-2 flex gap-2">
+                            <button type="submit" class="bg-theme text-white px-6 py-2 rounded-lg font-semibold text-sm bg-theme-hover">Save Product</button>
+                            <button type="button" onclick="resetProductForm()" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm">Cancel</button>
+                        </div>
+                    </form>
 
-                <!-- TAB 2: ORDERS MANAGEMENT -->
-                <div id="tab-orders" class="hidden space-y-6">
-                    <h4 class="font-bold text-gray-800 text-base">Customer Orders Dashboard</h4>
                     <div class="overflow-x-auto">
-                        <table class="w-full border-collapse border border-gray-200 text-left text-sm">
-                            <thead class="bg-gray-100 text-gray-700">
+                        <table class="w-full border-collapse border text-left text-sm">
+                            <thead class="bg-gray-100">
                                 <tr>
-                                    <th class="p-2 border">Date & Time</th>
-                                    <th class="p-2 border">Customer Info</th>
-                                    <th class="p-2 border">Items</th>
-                                    <th class="p-2 border">Total Amount</th>
-                                    <th class="p-2 border">Payment Ref</th>
-                                    <th class="p-2 border">Status</th>
+                                    <th class="p-2 border">Image</th>
+                                    <th class="p-2 border">Title</th>
+                                    <th class="p-2 border">Price</th>
+                                    <th class="p-2 border">Action</th>
                                 </tr>
                             </thead>
-                            <tbody id="admin-orders-table">
-                                <!-- Dynamic orders rows -->
-                            </tbody>
+                            <tbody id="admin-products-table"></tbody>
                         </table>
                     </div>
                 </div>
 
-                <!-- TAB 3: STORE SETTINGS & APPEARANCE -->
-                <div id="tab-settings" class="hidden space-y-6">
-                    <form id="store-settings-form" onsubmit="handleSaveSettings(event)" class="space-y-4 max-w-xl">
-                        <h4 class="font-bold text-gray-800 text-base border-b pb-2">Store Branding & Appearance</h4>
-                        
+                <!-- Settings Tab -->
+                <div id="tab-settings" class="space-y-4 hidden">
+                    <div class="bg-gray-50 p-4 border rounded-xl space-y-3">
+                        <h4 class="font-bold text-gray-800">WhatsApp & Admin Contact</h4>
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600">Store Name</label>
-                            <input type="text" id="set-store-name" required class="w-full border rounded p-2 text-sm">
+                            <label class="block text-xs font-semibold text-gray-600">WhatsApp Phone Number (with country code)</label>
+                            <input type="text" id="setting-whatsapp" value="94700000000" placeholder="94771234567" class="w-full border rounded p-2 text-sm">
                         </div>
-
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Store Logo (ලෝගෝ එක)</label>
-                            <input type="file" id="set-logo-file" accept="image/*" onchange="previewLogoFile(event)" class="w-full border rounded p-1 text-sm bg-white cursor-pointer">
-                            <input type="hidden" id="set-logo-base64">
-                            <div id="logo-preview-container" class="mt-2 hidden flex items-center gap-3">
-                                <img id="logo-preview" src="" class="h-12 w-auto object-contain border p-1 rounded bg-gray-50">
-                                <button type="button" onclick="removeLogo()" class="text-xs text-red-600 underline font-semibold">Remove Logo</button>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Website Theme Color (පාට)</label>
-                            <select id="set-theme-color" class="w-full border rounded p-2 text-sm">
-                                <option value="#4f46e5">Indigo (Default Blue-Purple)</option>
-                                <option value="#2563eb">Ocean Blue</option>
-                                <option value="#059669">Emerald Green</option>
-                                <option value="#dc2626">Crimson Red</option>
-                                <option value="#7c3aed">Royal Purple</option>
-                                <option value="#d97706">Amber Gold</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600">WhatsApp Number (For receiving orders)</label>
-                            <input type="text" id="set-whatsapp" placeholder="947XXXXXXXX" required class="w-full border rounded p-2 text-sm">
-                            <p class="text-xs text-gray-400">Include country code without + sign (e.g., 94771234567)</p>
-                        </div>
-
-                        <h4 class="font-bold text-gray-800 text-base border-b pb-2 pt-4">Bank Transfer Details</h4>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600">Bank Name</label>
-                            <input type="text" id="set-bank-name" required class="w-full border rounded p-2 text-sm">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600">Account Holder Name</label>
-                            <input type="text" id="set-acc-name" required class="w-full border rounded p-2 text-sm">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600">Account Number</label>
-                            <input type="text" id="set-acc-no" required class="w-full border rounded p-2 text-sm">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600">Branch Name</label>
-                            <input type="text" id="set-branch" required class="w-full border rounded p-2 text-sm">
-                        </div>
-
-                        <h4 class="font-bold text-gray-800 text-base border-b pb-2 pt-4">Change Admin Password</h4>
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600">New Admin Password</label>
-                            <input type="password" id="set-admin-pass" placeholder="Leave empty if unchanged" class="w-full border rounded p-2 text-sm">
-                        </div>
-
-                        <div class="pt-4">
-                            <button type="submit" class="bg-green-600 text-white px-6 py-2.5 rounded-lg font-bold text-sm hover:bg-green-700">Save All Settings</button>
-                        </div>
-                    </form>
+                        <button onclick="saveSettings()" class="bg-theme text-white px-4 py-2 rounded-lg text-sm font-semibold">Save Settings</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -354,6 +233,7 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
+        // Firebase Config (Replace with yours if needed)
         const firebaseConfig = {
             apiKey: "YOUR_API_KEY",
             authDomain: "YOUR_PROJECT.firebaseapp.com",
@@ -369,83 +249,31 @@
                 firebase.initializeApp(firebaseConfig);
                 db = firebase.firestore();
             }
-        } catch(e) { console.warn("Firebase not configured. Running on local mode."); }
+        } catch(e) { console.warn("Running in local mode. Connect Firebase for multi-device sync."); }
 
         const DEFAULT_PRODUCTS = [
-            { id: '1', title: "Classic Cotton T-Shirt", price: 2500, category: "Clothing", image: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=500&q=80", description: "Premium high-quality cotton t-shirt." },
-            { id: '2', title: "Smart Watch Series 5", price: 8900, category: "Electronics", image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&q=80", description: "Fitness tracker, heart rate monitor." },
-            { id: '3', title: "Casual Denim Jacket", price: 6500, category: "Clothing", image: "https://images.unsplash.com/photo-1576995853123-5a10305d93c0?w=500&q=80", description: "Stylish blue denim jacket." }
+            { id: '1', title: "Classic Cotton T-Shirt", price: 2500, category: "Clothing", image: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=500&q=80", description: "Premium cotton." },
+            { id: '2', title: "Smart Watch", price: 8900, category: "Electronics", image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&q=80", description: "Fitness tracker." }
         ];
 
-        const DEFAULT_SETTINGS = {
-            storeName: "My Online Store",
-            logo: "",
-            themeColor: "#4f46e5",
-            whatsapp: "94770000000",
-            bankName: "Commercial Bank",
-            accName: "Store Owner",
-            accNo: "8000123456",
-            branch: "Colombo Fort",
-            adminPassword: "admin123"
-        };
-
         let products = JSON.parse(localStorage.getItem('products')) || DEFAULT_PRODUCTS;
-        let settings = JSON.parse(localStorage.getItem('store_settings')) || DEFAULT_SETTINGS;
-        let orders = JSON.parse(localStorage.getItem('orders')) || [];
         let cart = JSON.parse(localStorage.getItem('cart')) || [];
         let selectedCategory = 'All';
+        let searchQuery = '';
+        let whatsappNum = localStorage.getItem('whatsappNum') || '94700000000';
 
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('footer-year').innerText = new Date().getFullYear();
-            applySettings();
+            document.getElementById('page-title').innerText = "My Web Store";
+            document.getElementById('setting-whatsapp').value = whatsappNum;
             renderCategoryFilters();
             renderProducts();
             renderCart();
             initRealtimeListeners();
         });
 
-        function previewImageFile(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                const base64String = event.target.result;
-                document.getElementById('prod-image-base64').value = base64String;
-                document.getElementById('image-preview').src = base64String;
-                document.getElementById('image-preview-container').classList.remove('hidden');
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function previewLogoFile(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                const base64String = event.target.result;
-                document.getElementById('set-logo-base64').value = base64String;
-                document.getElementById('logo-preview').src = base64String;
-                document.getElementById('logo-preview-container').classList.remove('hidden');
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function removeLogo() {
-            document.getElementById('set-logo-base64').value = '';
-            document.getElementById('set-logo-file').value = '';
-            document.getElementById('logo-preview-container').classList.add('hidden');
-        }
-
         function initRealtimeListeners() {
             if (db) {
-                db.collection("settings").doc("config").onSnapshot(doc => {
-                    if (doc.exists) {
-                        settings = { ...DEFAULT_SETTINGS, ...doc.data() };
-                        localStorage.setItem('store_settings', JSON.stringify(settings));
-                        applySettings();
-                    }
-                });
-
                 db.collection("products").onSnapshot(snapshot => {
                     let remoteProds = [];
                     snapshot.forEach(doc => remoteProds.push({ id: doc.id, ...doc.data() }));
@@ -454,65 +282,18 @@
                         localStorage.setItem('products', JSON.stringify(products));
                         renderCategoryFilters();
                         renderProducts();
+                        renderAdminProductsTable();
                     }
                 });
-
-                db.collection("orders").onSnapshot(snapshot => {
-                    let remoteOrders = [];
-                    snapshot.forEach(doc => remoteOrders.push({ id: doc.id, ...doc.data() }));
-                    orders = remoteOrders;
-                    localStorage.setItem('orders', JSON.stringify(orders));
-                    renderAdminOrdersTable();
-                });
             }
-
-            window.addEventListener('storage', (e) => {
-                if (e.key === 'store_settings') { settings = JSON.parse(e.newValue); applySettings(); }
-                if (e.key === 'products') { products = JSON.parse(e.newValue); renderCategoryFilters(); renderProducts(); }
-                if (e.key === 'orders') { orders = JSON.parse(e.newValue); renderAdminOrdersTable(); }
-            });
-        }
-
-        function applySettings() {
-            document.getElementById('page-title').innerText = settings.storeName;
-            document.getElementById('brand-name').innerText = settings.storeName;
-            document.getElementById('footer-brand').innerText = settings.storeName;
-
-            const logoImg = document.getElementById('store-logo');
-            if (settings.logo && settings.logo.trim() !== '') {
-                logoImg.src = settings.logo;
-                logoImg.classList.remove('hidden');
-            } else {
-                logoImg.classList.add('hidden');
-            }
-
-            const primaryHex = settings.themeColor || "#4f46e5";
-            document.documentElement.style.setProperty('--primary-color', primaryHex);
-            document.documentElement.style.setProperty('--primary-hover', adjustColorBrightness(primaryHex, -20));
-            document.documentElement.style.setProperty('--primary-light', adjustColorBrightness(primaryHex, 160));
-
-            document.getElementById('checkout-bank-name').innerText = settings.bankName;
-            document.getElementById('checkout-acc-name').innerText = settings.accName;
-            document.getElementById('checkout-acc-no').innerText = settings.accNo;
-            document.getElementById('checkout-branch').innerText = settings.branch;
-        }
-
-        function adjustColorBrightness(hex, percent) {
-            let num = parseInt(hex.replace('#',''), 16),
-                amt = Math.round(2.55 * percent),
-                R = (num >> 16) + amt,
-                G = (num >> 8 & 0x00FF) + amt,
-                B = (num & 0x0000FF) + amt;
-            return "#" + (0x1000000 + (R<255?R<1?0:R:255)*0x10000 + (G<255?G<1?0:G:255)*0x100 + (B<255?B<1?0:B:255)).toString(16).slice(1);
         }
 
         function renderCategoryFilters() {
             const container = document.getElementById('category-filters');
             const categories = ['All', ...new Set(products.map(p => p.category))];
-            
             container.innerHTML = categories.map(cat => `
                 <button onclick="filterCategory('${cat}')" 
-                    class="px-4 py-2 rounded-full text-sm font-medium transition whitespace-nowrap ${selectedCategory === cat ? 'bg-theme text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}">
+                    class="px-4 py-2 rounded-full text-sm font-medium transition whitespace-nowrap ${selectedCategory === cat ? 'bg-theme text-white' : 'bg-gray-200 text-gray-700'}">
                     ${cat}
                 </button>
             `).join('');
@@ -525,79 +306,54 @@
         }
 
         function handleSearch() {
+            searchQuery = document.getElementById('search-input').value.toLowerCase();
             renderProducts();
         }
 
         function renderProducts() {
             const grid = document.getElementById('product-grid');
             grid.innerHTML = '';
-
+            
             const filtered = products.filter(p => {
-                const matchesCat = selectedCategory === 'All' || p.category.toLowerCase() === selectedCategory.toLowerCase();
-                const searchTerm = document.getElementById('search-input')?.value.toLowerCase() || '';
-                const matchesSearch = p.title.toLowerCase().includes(searchTerm) || (p.description && p.description.toLowerCase().includes(searchTerm));
-                return matchesCat && matchesSearch;
+                const matchesCategory = selectedCategory === 'All' || p.category.toLowerCase() === selectedCategory.toLowerCase();
+                const matchesSearch = p.title.toLowerCase().includes(searchQuery) || (p.description && p.description.toLowerCase().includes(searchQuery));
+                return matchesCategory && matchesSearch;
             });
 
             if (filtered.length === 0) {
-                grid.innerHTML = `<div class="col-span-4 text-center py-12 text-gray-500">No products found.</div>`;
+                grid.innerHTML = `<p class="col-span-full text-center text-gray-500 py-8">No products found.</p>`;
                 return;
             }
 
             filtered.forEach(p => {
-                const card = document.createElement('div');
-                card.className = "bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition flex flex-col justify-between";
-                card.innerHTML = `
-                    <div>
-                        <img src="${p.image}" alt="${p.title}" class="w-full h-48 object-cover">
-                        <div class="p-4">
-                            <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">${p.category}</span>
-                            <h3 class="text-lg font-bold text-gray-800 mt-1 line-clamp-1">${p.title}</h3>
-                            <p class="text-sm text-gray-500 mt-1 line-clamp-2">${p.description || ''}</p>
+                grid.innerHTML += `
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden flex flex-col justify-between hover:shadow-lg transition">
+                        <img src="${p.image}" class="w-full h-48 object-cover">
+                        <div class="p-4 flex-grow">
+                            <h3 class="font-bold text-gray-800">${p.title}</h3>
+                            <p class="text-sm text-gray-500">${p.description || ''}</p>
+                            <p class="text-theme font-bold mt-2">Rs. ${p.price}</p>
+                        </div>
+                        <div class="p-4 pt-0">
+                            <button onclick="addToCart('${p.id}')" class="w-full bg-theme text-white py-2 rounded-lg font-semibold hover:bg-indigo-600 transition">Add to Cart</button>
                         </div>
                     </div>
-                    <div class="p-4 pt-0 flex justify-between items-center border-t border-gray-100 mt-2">
-                        <span class="text-lg font-bold text-theme">Rs. ${p.price.toLocaleString()}</span>
-                        <button onclick="addToCart('${p.id}')" class="bg-theme text-white px-3 py-1.5 rounded-lg text-sm bg-theme-hover transition flex items-center gap-1">
-                            <i class="fa-solid fa-cart-plus"></i> Add
-                        </button>
-                    </div>
                 `;
-                grid.appendChild(card);
             });
         }
 
-        function toggleCart() {
-            document.getElementById('cart-drawer').classList.toggle('hidden');
-        }
-
         function addToCart(id) {
-            const prod = products.find(p => p.id === id);
-            if (!prod) return;
-            const existing = cart.find(c => c.id === id);
-            if (existing) {
-                existing.qty++;
-            } else {
-                cart.push({ ...prod, qty: 1 });
-            }
+            const item = products.find(p => p.id === id);
+            const exist = cart.find(c => c.id === id);
+            if (exist) exist.qty += 1;
+            else cart.push({ ...item, qty: 1 });
             saveCart();
-            renderCart();
             toggleCart();
-        }
-
-        function updateCartQty(id, delta) {
-            const item = cart.find(c => c.id === id);
-            if (!item) return;
-            item.qty += delta;
-            if (item.qty <= 0) {
-                cart = cart.filter(c => c.id !== id);
-            }
-            saveCart();
-            renderCart();
         }
 
         function saveCart() {
             localStorage.setItem('cart', JSON.stringify(cart));
+            renderCart();
         }
 
         function renderCart() {
@@ -609,33 +365,36 @@
             cart.forEach(item => {
                 total += item.price * item.qty;
                 count += item.qty;
-
-                const div = document.createElement('div');
-                div.className = "flex items-center justify-between border-b pb-3";
-                div.innerHTML = `
-                    <div class="flex items-center space-x-3">
-                        <img src="${item.image}" class="w-12 h-12 object-cover rounded">
+                container.innerHTML += `
+                    <div class="flex items-center justify-between border-b pb-2">
                         <div>
-                            <h4 class="text-sm font-semibold text-gray-800">${item.title}</h4>
-                            <p class="text-xs text-gray-500">Rs. ${item.price.toLocaleString()} x ${item.qty}</p>
+                            <h4 class="font-bold text-sm">${item.title}</h4>
+                            <p class="text-xs text-gray-500">Rs. ${item.price} x ${item.qty}</p>
                         </div>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <button onclick="updateCartQty('${item.id}', -1)" class="px-2 py-0.5 bg-gray-200 rounded text-sm">-</button>
-                        <span class="text-sm font-bold">${item.qty}</span>
-                        <button onclick="updateCartQty('${item.id}', 1)" class="px-2 py-0.5 bg-gray-200 rounded text-sm">+</button>
+                        <button onclick="removeFromCart('${item.id}')" class="text-red-500 text-sm p-1"><i class="fa-solid fa-trash"></i></button>
                     </div>
                 `;
-                container.appendChild(div);
             });
 
-            document.getElementById('cart-total').innerText = `Rs. ${total.toLocaleString()}`;
+            document.getElementById('cart-total').innerText = 'Rs. ' + total;
             document.getElementById('cart-count').innerText = count;
         }
 
+        function removeFromCart(id) {
+            cart = cart.filter(c => c.id !== id);
+            saveCart();
+        }
+
+        function toggleCart() {
+            document.getElementById('cart-drawer').classList.toggle('hidden');
+        }
+
         function openCheckoutModal() {
-            if (cart.length === 0) { alert('Your cart is empty!'); return; }
-            document.getElementById('cart-drawer').classList.add('hidden');
+            if(cart.length === 0) {
+                alert("Your cart is empty!");
+                return;
+            }
+            toggleCart();
             document.getElementById('checkout-modal').classList.remove('hidden');
         }
 
@@ -650,70 +409,48 @@
             const address = document.getElementById('cust-address').value;
             const ref = document.getElementById('cust-ref').value;
 
-            const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-            const orderData = {
-                date: new Date().toLocaleString(),
-                customer: { name, phone, address },
-                items: [...cart],
-                total: total,
-                ref: ref,
-                status: 'Pending'
-            };
+            let itemsText = cart.map(i => `- ${i.title} (x${i.qty}): Rs.${i.price * i.qty}`).join('\n');
+            let total = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
 
-            orders.unshift(orderData);
-            localStorage.setItem('orders', JSON.stringify(orders));
-            if (db) db.collection("orders").add(orderData);
-
-            let msg = `*NEW ORDER - ${settings.storeName}*\n\n`;
-            msg += `*Name:* ${name}\n*Phone:* ${phone}\n*Address:* ${address}\n`;
-            if (ref) msg += `*Ref/Notes:* ${ref}\n`;
-            msg += `\n*Items Ordered:*\n`;
-            cart.forEach(i => { msg += `- ${i.title} (x${i.qty}) : Rs. ${(i.price * i.qty).toLocaleString()}\n`; });
-            msg += `\n*Total Amount:* Rs. ${total.toLocaleString()}\n\n`;
-            msg += `*Bank Details:* ${settings.bankName} | ${settings.accNo}`;
-
-            const waNum = settings.whatsapp ? settings.whatsapp.replace(/[^0-9]/g, '') : '';
-            window.open(`https://wa.me/${waNum}?text=${encodeURIComponent(msg)}`, '_blank');
+            let message = `*New Order Placed!*\n\n*Customer Details:*\nName: ${name}\nPhone: ${phone}\nAddress: ${address}\nRef: ${ref || 'N/A'}\n\n*Order Items:*\n${itemsText}\n\n*Total Amount:* Rs. ${total}`;
+            
+            let url = `https://wa.me/${whatsappNum}?text=${encodeURIComponent(message)}`;
+            window.open(url, '_blank');
 
             cart = [];
             saveCart();
-            renderCart();
             closeCheckoutModal();
         }
 
-        // ADMIN LOGIC
-        function openAdminAuth() {
-            document.getElementById('admin-auth-modal').classList.remove('hidden');
-        }
-
-        function closeAdminAuth() {
-            document.getElementById('admin-auth-modal').classList.add('hidden');
-        }
-
+        // Admin Modal Controls
+        function openAdminAuth() { document.getElementById('admin-auth-modal').classList.remove('hidden'); }
+        function closeAdminAuth() { document.getElementById('admin-auth-modal').classList.add('hidden'); }
+        
         function verifyAdminPassword() {
-            const input = document.getElementById('admin-pass-input').value;
-            if (input === (settings.adminPassword || 'admin123')) {
+            const pass = document.getElementById('admin-pass-input').value;
+            if (pass === "admin123") {
                 closeAdminAuth();
                 document.getElementById('admin-dashboard-modal').classList.remove('hidden');
                 renderAdminProductsTable();
-                renderAdminOrdersTable();
-                populateSettingsForm();
             } else {
-                alert('Incorrect Password!');
+                alert("Incorrect Password!");
             }
         }
 
-        function closeAdminDashboard() {
-            document.getElementById('admin-dashboard-modal').classList.add('hidden');
-        }
+        function closeAdminDashboard() { document.getElementById('admin-dashboard-modal').classList.add('hidden'); }
 
         function switchAdminTab(tab) {
-            ['products', 'orders', 'settings'].forEach(t => {
-                document.getElementById(`tab-${t}`).classList.add('hidden');
-                document.getElementById(`tab-btn-${t}`).className = "px-6 py-3 font-semibold text-sm border-b-2 border-transparent text-gray-600 hover:text-theme";
-            });
-            document.getElementById(`tab-${tab}`).classList.remove('hidden');
-            document.getElementById(`tab-btn-${tab}`).className = "px-6 py-3 font-semibold text-sm border-b-2 border-theme text-theme bg-white";
+            if (tab === 'products') {
+                document.getElementById('tab-products').classList.remove('hidden');
+                document.getElementById('tab-settings').classList.add('hidden');
+                document.getElementById('tab-btn-products').className = "px-6 py-3 font-semibold text-sm border-b-2 border-theme text-theme bg-white";
+                document.getElementById('tab-btn-settings').className = "px-6 py-3 font-semibold text-sm border-b-2 border-transparent text-gray-600";
+            } else {
+                document.getElementById('tab-products').classList.add('hidden');
+                document.getElementById('tab-settings').classList.remove('hidden');
+                document.getElementById('tab-btn-products').className = "px-6 py-3 font-semibold text-sm border-b-2 border-transparent text-gray-600";
+                document.getElementById('tab-btn-settings').className = "px-6 py-3 font-semibold text-sm border-b-2 border-theme text-theme bg-white";
+            }
         }
 
         function renderAdminProductsTable() {
@@ -722,11 +459,10 @@
                 <tr>
                     <td class="p-2 border"><img src="${p.image}" class="w-10 h-10 object-cover rounded"></td>
                     <td class="p-2 border font-medium">${p.title}</td>
-                    <td class="p-2 border">Rs. ${p.price.toLocaleString()}</td>
-                    <td class="p-2 border">${p.category}</td>
-                    <td class="p-2 border space-x-2">
-                        <button onclick="editProduct('${p.id}')" class="text-blue-600 hover:underline text-xs">Edit</button>
-                        <button onclick="deleteProduct('${p.id}')" class="text-red-600 hover:underline text-xs">Delete</button>
+                    <td class="p-2 border">Rs. ${p.price}</td>
+                    <td class="p-2 border">
+                        <button onclick="editProduct('${p.id}')" class="text-blue-600 mr-2"><i class="fa-solid fa-pen"></i></button>
+                        <button onclick="deleteProduct('${p.id}')" class="text-red-600"><i class="fa-solid fa-trash"></i></button>
                     </td>
                 </tr>
             `).join('');
@@ -734,119 +470,81 @@
 
         function handleAddOrUpdateProduct(e) {
             e.preventDefault();
-            const id = document.getElementById('prod-id').value;
+            const editId = document.getElementById('prod-id').value;
             const title = document.getElementById('prod-title').value;
-            const price = parseFloat(document.getElementById('prod-price').value);
+            const price = Number(document.getElementById('prod-price').value);
             const category = document.getElementById('prod-category').value;
-            const image = document.getElementById('prod-image-base64').value || 'https://via.placeholder.com/150';
             const description = document.getElementById('prod-desc').value;
+            const image = document.getElementById('prod-image-base64').value || "https://via.placeholder.com/150";
 
-            if (id) {
-                const idx = products.findIndex(p => p.id === id);
-                if (idx !== -1) products[idx] = { id, title, price, category, image, description };
-                if (db) db.collection("products").doc(id).set({ title, price, category, image, description });
+            if(editId) {
+                // Edit existing product
+                const idx = products.findIndex(p => p.id === editId);
+                if(idx !== -1) {
+                    products[idx] = { id: editId, title, price, category, description, image };
+                }
             } else {
-                const newId = Date.now().toString();
-                const newProd = { id: newId, title, price, category, image, description };
+                // Add new product
+                const newProd = { id: Date.now().toString(), title, price, category, description, image };
                 products.push(newProd);
-                if (db) db.collection("products").doc(newId).set(newProd);
             }
 
-            localStorage.setItem('products', JSON.stringify(products));
+            if (db) {
+                const pId = editId || Date.now().toString();
+                db.collection("products").doc(pId).set({ title, price, category, description, image });
+            } else {
+                localStorage.setItem('products', JSON.stringify(products));
+                renderCategoryFilters();
+                renderProducts();
+                renderAdminProductsTable();
+            }
             resetProductForm();
-            renderAdminProductsTable();
-            renderCategoryFilters();
-            renderProducts();
         }
 
         function editProduct(id) {
-            const p = products.find(x => x.id === id);
-            if (!p) return;
+            const p = products.find(prod => prod.id === id);
+            if(!p) return;
             document.getElementById('prod-id').value = p.id;
             document.getElementById('prod-title').value = p.title;
             document.getElementById('prod-price').value = p.price;
             document.getElementById('prod-category').value = p.category;
             document.getElementById('prod-desc').value = p.description || '';
             document.getElementById('prod-image-base64').value = p.image;
-            document.getElementById('image-preview').src = p.image;
-            document.getElementById('image-preview-container').classList.remove('hidden');
-            document.getElementById('prod-form-title').innerText = "Edit Product";
-            document.getElementById('prod-submit-btn').innerText = "Update Product";
-        }
-
-        function deleteProduct(id) {
-            if (confirm('Are you sure you want to delete this product?')) {
-                products = products.filter(p => p.id !== id);
-                localStorage.setItem('products', JSON.stringify(products));
-                if (db) db.collection("products").doc(id).delete();
-                renderAdminProductsTable();
-                renderCategoryFilters();
-                renderProducts();
-            }
         }
 
         function resetProductForm() {
             document.getElementById('add-product-form').reset();
             document.getElementById('prod-id').value = '';
             document.getElementById('prod-image-base64').value = '';
-            document.getElementById('image-preview-container').classList.add('hidden');
-            document.getElementById('prod-form-title').innerText = "Add New Product";
-            document.getElementById('prod-submit-btn').innerText = "Save Product";
         }
 
-        function renderAdminOrdersTable() {
-            const tbody = document.getElementById('admin-orders-table');
-            tbody.innerHTML = orders.map(o => `
-                <tr>
-                    <td class="p-2 border text-xs">${o.date}</td>
-                    <td class="p-2 border text-xs">
-                        <strong>${o.customer.name}</strong><br>${o.customer.phone}<br>${o.customer.address}
-                    </td>
-                    <td class="p-2 border text-xs">${o.items.map(i => `${i.title} (${i.qty})`).join(', ')}</td>
-                    <td class="p-2 border font-bold text-xs">Rs. ${o.total.toLocaleString()}</td>
-                    <td class="p-2 border text-xs">${o.ref || '-'}</td>
-                    <td class="p-2 border text-xs"><span class="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded font-semibold">${o.status}</span></td>
-                </tr>
-            `).join('');
+        function previewImageFile(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                document.getElementById('prod-image-base64').value = event.target.result;
+            };
+            reader.readAsDataURL(file);
         }
 
-        function populateSettingsForm() {
-            document.getElementById('set-store-name').value = settings.storeName || '';
-            document.getElementById('set-theme-color').value = settings.themeColor || '#4f46e5';
-            document.getElementById('set-whatsapp').value = settings.whatsapp || '';
-            document.getElementById('set-bank-name').value = settings.bankName || '';
-            document.getElementById('set-acc-name').value = settings.accName || '';
-            document.getElementById('set-acc-no').value = settings.accNo || '';
-            document.getElementById('set-branch').value = settings.branch || '';
-
-            if (settings.logo) {
-                document.getElementById('set-logo-base64').value = settings.logo;
-                document.getElementById('logo-preview').src = settings.logo;
-                document.getElementById('logo-preview-container').classList.remove('hidden');
+        function deleteProduct(id) {
+            if(!confirm("Are you sure you want to delete this product?")) return;
+            if (db) {
+                db.collection("products").doc(id).delete();
+            } else {
+                products = products.filter(p => p.id !== id);
+                localStorage.setItem('products', JSON.stringify(products));
+                renderCategoryFilters();
+                renderProducts();
+                renderAdminProductsTable();
             }
         }
 
-        function handleSaveSettings(e) {
-            e.preventDefault();
-            settings.storeName = document.getElementById('set-store-name').value;
-            settings.themeColor = document.getElementById('set-theme-color').value;
-            settings.whatsapp = document.getElementById('set-whatsapp').value;
-            settings.bankName = document.getElementById('set-bank-name').value;
-            settings.accName = document.getElementById('set-acc-name').value;
-            settings.accNo = document.getElementById('set-acc-no').value;
-            settings.branch = document.getElementById('set-branch').value;
-            settings.logo = document.getElementById('set-logo-base64').value;
-
-            const newPass = document.getElementById('set-admin-pass').value;
-            if (newPass.trim() !== '') {
-                settings.adminPassword = newPass;
-            }
-
-            localStorage.setItem('store_settings', JSON.stringify(settings));
-            if (db) db.collection("settings").doc("config").set(settings);
-
-            applySettings();
-            alert('Settings Saved Successfully!');
+        function saveSettings() {
+            whatsappNum = document.getElementById('setting-whatsapp').value;
+            localStorage.setItem('whatsappNum', whatsappNum);
+            alert("Settings saved successfully!");
         }
     </script>
 </body>

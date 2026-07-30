@@ -398,6 +398,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('footer-year').innerText = new Date().getFullYear();
             applySettings();
+            renderCategoryFilters();
             renderProducts();
             renderCart();
             initRealtimeListeners();
@@ -456,6 +457,7 @@
                     if (remoteProds.length > 0) {
                         products = remoteProds;
                         localStorage.setItem('products', JSON.stringify(products));
+                        renderCategoryFilters();
                         renderProducts();
                     }
                 });
@@ -471,7 +473,7 @@
 
             window.addEventListener('storage', (e) => {
                 if (e.key === 'store_settings') { settings = JSON.parse(e.newValue); applySettings(); }
-                if (e.key === 'products') { products = JSON.parse(e.newValue); renderProducts(); }
+                if (e.key === 'products') { products = JSON.parse(e.newValue); renderCategoryFilters(); renderProducts(); }
                 if (e.key === 'orders') { orders = JSON.parse(e.newValue); renderAdminOrdersTable(); }
             });
         }
@@ -511,6 +513,29 @@
             return "#" + (0x1000000 + (R<255?R<1?0:R:255)*0x10000 + (G<255?G<1?0:G:255)*0x100 + (B<255?B<1?0:B:255)).toString(16).slice(1);
         }
 
+        // CATEGORY FILTERS
+        function renderCategoryFilters() {
+            const container = document.getElementById('category-filters');
+            const categories = ['All', ...new Set(products.map(p => p.category))];
+            
+            container.innerHTML = categories.map(cat => `
+                <button onclick="filterCategory('${cat}')" 
+                    class="px-4 py-2 rounded-full text-sm font-medium transition whitespace-nowrap ${selectedCategory === cat ? 'bg-theme text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}">
+                    ${cat}
+                </button>
+            `).join('');
+        }
+
+        function filterCategory(cat) {
+            selectedCategory = cat;
+            renderCategoryFilters();
+            renderProducts();
+        }
+
+        function handleSearch() {
+            renderProducts();
+        }
+
         // PRODUCT RENDERING
         function renderProducts() {
             const grid = document.getElementById('product-grid');
@@ -540,7 +565,7 @@
                         <div class="p-4">
                             <h3 class="font-bold text-gray-800 text-lg mb-1">${prod.title}</h3>
                             <p class="text-xs text-gray-500 mb-3 line-clamp-2">${prod.description || ''}</p>
-                            <div class="text-theme font-extrabold text-xl">Rs. ${Number(prod.price).toLocaleString()}</div>
+                            <div class="text-xl font-extrabold text-theme mb-3">Rs. ${prod.price.toLocaleString()}</div>
                         </div>
                     </div>
                     <div class="p-4 pt-0">
@@ -551,92 +576,85 @@
                 `;
                 grid.appendChild(card);
             });
-
-            renderCategoryButtons();
         }
 
-        function renderCategoryButtons() {
-            const container = document.getElementById('category-filters');
-            const categories = ['All', ...new Set(products.map(p => p.category))];
-            
-            container.innerHTML = categories.map(cat => `
-                <button onclick="filterCategory('${cat}')" class="px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition ${selectedCategory === cat ? 'bg-theme text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}">
-                    ${cat}
-                </button>
-            `).join('');
+        // CART LOGIC
+        function toggleCart() {
+            document.getElementById('cart-drawer').classList.toggle('hidden');
         }
 
-        function filterCategory(cat) { selectedCategory = cat; renderProducts(); }
-        function handleSearch() { renderProducts(); }
-
-        // CART SYSTEM
         function addToCart(id) {
-            const prod = products.find(p => String(p.id) === String(id));
+            const prod = products.find(p => p.id === id);
             if (!prod) return;
 
-            const existing = cart.find(item => String(item.id) === String(id));
-            if (existing) { existing.qty += 1; } 
-            else { cart.push({ ...prod, qty: 1 }); }
-
-            saveCart(); renderCart(); toggleCart(true);
+            const existing = cart.find(item => item.id === id);
+            if (existing) {
+                existing.qty += 1;
+            } else {
+                cart.push({ ...prod, qty: 1 });
+            }
+            saveCart();
+            renderCart();
+            toggleCart();
         }
 
         function updateCartQty(id, delta) {
-            const item = cart.find(i => String(i.id) === String(id));
-            if (!item) return;
-
-            item.qty += delta;
-            if (item.qty <= 0) cart = cart.filter(i => String(i.id) !== String(id));
-            saveCart(); renderCart();
+            const idx = cart.findIndex(item => item.id === id);
+            if (idx > -1) {
+                cart[idx].qty += delta;
+                if (cart[idx].qty <= 0) cart.splice(idx, 1);
+            }
+            saveCart();
+            renderCart();
         }
 
-        function saveCart() { localStorage.setItem('cart', JSON.stringify(cart)); }
+        function saveCart() {
+            localStorage.setItem('cart', JSON.stringify(cart));
+        }
 
         function renderCart() {
-            const cartItemsContainer = document.getElementById('cart-items');
-            const cartCountBadge = document.getElementById('cart-count');
-            const cartTotal = document.getElementById('cart-total');
+            const container = document.getElementById('cart-items');
+            container.innerHTML = '';
 
-            const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
-            const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-
-            cartCountBadge.innerText = totalQty;
-            cartTotal.innerText = `Rs. ${totalPrice.toLocaleString()}`;
+            let total = 0;
+            let count = 0;
 
             if (cart.length === 0) {
-                cartItemsContainer.innerHTML = `<p class="text-center text-gray-400 py-8">Your cart is empty.</p>`;
-                return;
+                container.innerHTML = `<div class="text-center text-gray-400 py-12">Your cart is empty.</div>`;
+            } else {
+                cart.forEach(item => {
+                    total += item.price * item.qty;
+                    count += item.qty;
+
+                    const el = document.createElement('div');
+                    el.className = "flex items-center gap-4 border-b pb-3";
+                    el.innerHTML = `
+                        <img src="${item.image}" class="w-16 h-16 object-cover rounded-lg border">
+                        <div class="flex-grow">
+                            <h4 class="font-semibold text-sm text-gray-800 line-clamp-1">${item.title}</h4>
+                            <div class="text-xs text-gray-500">Rs. ${item.price.toLocaleString()}</div>
+                            <div class="flex items-center gap-2 mt-2">
+                                <button onclick="updateCartQty('${item.id}', -1)" class="w-6 h-6 bg-gray-200 rounded flex items-center justify-center font-bold text-xs">-</button>
+                                <span class="text-xs font-semibold">${item.qty}</span>
+                                <button onclick="updateCartQty('${item.id}', 1)" class="w-6 h-6 bg-gray-200 rounded flex items-center justify-center font-bold text-xs">+</button>
+                            </div>
+                        </div>
+                        <div class="font-bold text-sm text-gray-800">
+                            Rs. ${(item.price * item.qty).toLocaleString()}
+                        </div>
+                    `;
+                    container.appendChild(el);
+                });
             }
 
-            cartItemsContainer.innerHTML = cart.map(item => `
-                <div class="flex items-center justify-between border-b pb-3">
-                    <div class="flex items-center space-x-3">
-                        <img src="${item.image}" class="w-12 h-12 object-cover rounded">
-                        <div>
-                            <h4 class="font-bold text-sm text-gray-800">${item.title}</h4>
-                            <p class="text-xs text-gray-500">Rs. ${Number(item.price).toLocaleString()}</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <button onclick="updateCartQty('${item.id}', -1)" class="w-6 h-6 bg-gray-200 rounded flex items-center justify-center font-bold text-gray-600">-</button>
-                        <span class="text-sm font-semibold">${item.qty}</span>
-                        <button onclick="updateCartQty('${item.id}', 1)" class="w-6 h-6 bg-gray-200 rounded flex items-center justify-center font-bold text-gray-600">+</button>
-                    </div>
-                </div>
-            `).join('');
+            document.getElementById('cart-count').innerText = count;
+            document.getElementById('cart-total').innerText = `Rs. ${total.toLocaleString()}`;
         }
 
-        function toggleCart(show) {
-            const drawer = document.getElementById('cart-drawer');
-            if (show === true) drawer.classList.remove('hidden');
-            else if (show === false) drawer.classList.add('hidden');
-            else drawer.classList.toggle('hidden');
-        }
-
-        // CHECKOUT & ORDERS
+        // CHECKOUT & WHATSAPP
         function openCheckoutModal() {
             if (cart.length === 0) { alert("Your cart is empty!"); return; }
-            toggleCart(false);
+            toggleCart();
             document.getElementById('checkout-modal').classList.remove('hidden');
         }
 
@@ -646,57 +664,70 @@
 
         function handlePlaceOrder(e) {
             e.preventDefault();
+
             const name = document.getElementById('cust-name').value;
             const phone = document.getElementById('cust-phone').value;
             const address = document.getElementById('cust-address').value;
             const ref = document.getElementById('cust-ref').value;
 
-            const orderTotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            const total = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
+            const dateStr = new Date().toLocaleString();
+
             const newOrder = {
                 id: 'ORD-' + Date.now(),
-                date: new Date().toLocaleString(),
+                date: dateStr,
                 customer: { name, phone, address },
                 items: cart,
-                total: orderTotal,
-                ref: ref || 'None',
+                total: total,
+                ref: ref || 'N/A',
                 status: 'Pending'
             };
 
-            orders.unshift(newOrder);
+            orders.push(newOrder);
             localStorage.setItem('orders', JSON.stringify(orders));
 
-            if (db) { db.collection("orders").doc(newOrder.id).set(newOrder); }
+            if (db) {
+                db.collection("orders").doc(newOrder.id).set(newOrder);
+            }
 
-            // Formulate WhatsApp message
-            let msg = `*NEW ORDER: ${newOrder.id}*\n\n`;
-            msg += `*Customer Details:*\nName: ${name}\nPhone: ${phone}\nAddress: ${address}\n\n`;
-            msg += `*Order Items:*\n`;
-            cart.forEach(i => { msg += `- ${i.title} x ${i.qty} = Rs. ${(i.price * i.qty).toLocaleString()}\n`; });
-            msg += `\n*Total Amount:* Rs. ${orderTotal.toLocaleString()}\n`;
-            if (ref) msg += `*Payment Reference:* ${ref}\n`;
-            
-            // එකතු කරන ලද කොටස:
-            msg += `\nPlease attach your bank payment slip below:\n(Order එක complete කිරීමට පහතින් Bank slip එක upload කරන්න)`;
+            // Construct WhatsApp Message
+            let text = `🛒 *NEW ORDER - ${settings.storeName}*\n\n`;
+            text += `👤 *Customer:* ${name}\n`;
+            text += `📞 *Phone:* ${phone}\n`;
+            text += `📍 *Address:* ${address}\n\n`;
+            text += `📦 *Order Items:*\n`;
 
-            const waNum = settings.whatsapp ? settings.whatsapp.replace(/[^0-9]/g, '') : '';
-            const waUrl = `https://wa.me/${waNum}?text=${encodeURIComponent(msg)}`;
+            cart.forEach((item, i) => {
+                text += `${i + 1}. ${item.title} (x${item.qty}) - Rs. ${(item.price * item.qty).toLocaleString()}\n`;
+            });
+
+            text += `\n💰 *Total Amount:* Rs. ${total.toLocaleString()}\n`;
+            if (ref) text += `💳 *Bank Ref / Note:* ${ref}\n`;
+            text += `\n--- Bank Transfer details submitted. Please send bank recipt to confirm order!(කරුණාකර order එක complete කිරීමට Bank slip එක upload කරන්න.) ---`;
+
+            const encoded = encodeURIComponent(text);
+            const waNum = settings.whatsapp.replace(/[^0-9]/g, '');
 
             cart = [];
             saveCart();
             renderCart();
             closeCheckoutModal();
-            document.getElementById('checkout-form').reset();
 
-            window.open(waUrl, '_blank');
+            window.open(`https://wa.me/${waNum}?text=${encoded}`, '_blank');
         }
 
-        // ADMIN CONTROLS
-        function openAdminAuth() { document.getElementById('admin-auth-modal').classList.remove('hidden'); }
-        function closeAdminAuth() { document.getElementById('admin-auth-modal').classList.add('hidden'); }
+        // ADMIN ACCESS & DASHBOARD
+        function openAdminAuth() {
+            document.getElementById('admin-auth-modal').classList.remove('hidden');
+        }
+
+        function closeAdminAuth() {
+            document.getElementById('admin-auth-modal').classList.add('hidden');
+        }
 
         function verifyAdminPassword() {
-            const input = document.getElementById('admin-pass-input').value;
-            if (input === settings.adminPassword) {
+            const pass = document.getElementById('admin-pass-input').value;
+            if (pass === settings.adminPassword) {
                 closeAdminAuth();
                 document.getElementById('admin-pass-input').value = '';
                 openAdminDashboard();
@@ -709,45 +740,50 @@
             document.getElementById('admin-dashboard-modal').classList.remove('hidden');
             renderAdminProductsTable();
             renderAdminOrdersTable();
-            populateSettingsForm();
+            loadSettingsForm();
         }
 
-        function closeAdminDashboard() { document.getElementById('admin-dashboard-modal').classList.add('hidden'); }
+        function closeAdminDashboard() {
+            document.getElementById('admin-dashboard-modal').classList.add('hidden');
+        }
 
         function switchAdminTab(tab) {
             ['products', 'orders', 'settings'].forEach(t => {
                 document.getElementById(`tab-${t}`).classList.add('hidden');
-                document.getElementById(`tab-btn-${t}`).classList.remove('border-theme', 'text-theme', 'bg-white');
-                document.getElementById(`tab-btn-${t}`).classList.add('border-transparent', 'text-gray-600');
+                document.getElementById(`tab-btn-${t}`).className = "px-6 py-3 font-semibold text-sm border-b-2 border-transparent text-gray-600 hover:text-theme";
             });
 
             document.getElementById(`tab-${tab}`).classList.remove('hidden');
-            document.getElementById(`tab-btn-${tab}`).classList.add('border-theme', 'text-theme', 'bg-white');
-            document.getElementById(`tab-btn-${tab}`).classList.remove('border-transparent', 'text-gray-600');
+            document.getElementById(`tab-btn-${tab}`).className = "px-6 py-3 font-semibold text-sm border-b-2 border-theme text-theme bg-white";
         }
 
-        // ADMIN PRODUCT MANAGEMENT
+        // ADMIN PRODUCTS MANAGEMENT
         function renderAdminProductsTable() {
             const tbody = document.getElementById('admin-products-table');
-            tbody.innerHTML = products.map(p => `
-                <tr class="border-b">
-                    <td class="p-2"><img src="${p.image}" class="w-10 h-10 object-cover rounded"></td>
-                    <td class="p-2 font-semibold">${p.title}</td>
-                    <td class="p-2">Rs. ${Number(p.price).toLocaleString()}</td>
-                    <td class="p-2">${p.category}</td>
-                    <td class="p-2 space-x-2">
-                        <button onclick="editProduct('${p.id}')" class="text-blue-600 hover:underline">Edit</button>
-                        <button onclick="deleteProduct('${p.id}')" class="text-red-600 hover:underline">Delete</button>
+            tbody.innerHTML = '';
+
+            products.forEach(p => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="p-2 border"><img src="${p.image}" class="w-10 h-10 object-cover rounded"></td>
+                    <td class="p-2 border font-medium">${p.title}</td>
+                    <td class="p-2 border">Rs. ${p.price.toLocaleString()}</td>
+                    <td class="p-2 border">${p.category}</td>
+                    <td class="p-2 border space-x-2">
+                        <button onclick="editProduct('${p.id}')" class="text-blue-600 hover:underline text-xs font-bold">Edit</button>
+                        <button onclick="deleteProduct('${p.id}')" class="text-red-600 hover:underline text-xs font-bold">Delete</button>
                     </td>
-                </tr>
-            `).join('');
+                `;
+                tbody.appendChild(tr);
+            });
         }
 
         function handleAddOrUpdateProduct(e) {
             e.preventDefault();
+
             const id = document.getElementById('prod-id').value;
             const title = document.getElementById('prod-title').value;
-            const price = Number(document.getElementById('prod-price').value);
+            const price = parseFloat(document.getElementById('prod-price').value);
             const category = document.getElementById('prod-category').value;
             const image = document.getElementById('prod-image-base64').value;
             const description = document.getElementById('prod-desc').value;
@@ -755,33 +791,37 @@
             if (!image) { alert("Please select a product image!"); return; }
 
             if (id) {
-                const idx = products.findIndex(p => String(p.id) === String(id));
-                if (idx !== -1) {
+                const idx = products.findIndex(p => p.id === id);
+                if (idx > -1) {
                     products[idx] = { id, title, price, category, image, description };
-                    if (db) db.collection("products").doc(id).set(products[idx]);
                 }
             } else {
-                const newProd = { id: String(Date.now()), title, price, category, image, description };
-                products.push(newProd);
-                if (db) db.collection("products").doc(newProd.id).set(newProd);
+                const newId = Date.now().toString();
+                products.push({ id: newId, title, price, category, image, description });
             }
 
             localStorage.setItem('products', JSON.stringify(products));
+            if (db) {
+                const prodData = products.find(p => p.id === (id || newId));
+                db.collection("products").doc(prodData.id).set(prodData);
+            }
+
+            resetProductForm();
+            renderCategoryFilters();
             renderProducts();
             renderAdminProductsTable();
-            resetProductForm();
         }
 
         function editProduct(id) {
-            const prod = products.find(p => String(p.id) === String(id));
+            const prod = products.find(p => p.id === id);
             if (!prod) return;
 
             document.getElementById('prod-id').value = prod.id;
             document.getElementById('prod-title').value = prod.title;
             document.getElementById('prod-price').value = prod.price;
             document.getElementById('prod-category').value = prod.category;
-            document.getElementById('prod-image-base64').value = prod.image;
             document.getElementById('prod-desc').value = prod.description || '';
+            document.getElementById('prod-image-base64').value = prod.image;
 
             document.getElementById('image-preview').src = prod.image;
             document.getElementById('image-preview-container').classList.remove('hidden');
@@ -791,12 +831,14 @@
         }
 
         function deleteProduct(id) {
-            if (!confirm("Are you sure you want to delete this product?")) return;
-            products = products.filter(p => String(p.id) !== String(id));
-            localStorage.setItem('products', JSON.stringify(products));
-            if (db) db.collection("products").doc(id).delete();
-            renderProducts();
-            renderAdminProductsTable();
+            if (confirm("Are you sure you want to delete this product?")) {
+                products = products.filter(p => p.id !== id);
+                localStorage.setItem('products', JSON.stringify(products));
+                if (db) db.collection("products").doc(id).delete();
+                renderCategoryFilters();
+                renderProducts();
+                renderAdminProductsTable();
+            }
         }
 
         function resetProductForm() {
@@ -811,84 +853,92 @@
         // ADMIN ORDERS MANAGEMENT
         function renderAdminOrdersTable() {
             const tbody = document.getElementById('admin-orders-table');
+            tbody.innerHTML = '';
+
             if (orders.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-gray-500">No orders placed yet.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-gray-500">No orders received yet.</td></tr>`;
                 return;
             }
 
-            tbody.innerHTML = orders.map(o => `
-                <tr class="border-b text-xs">
-                    <td class="p-2 font-mono">${o.date}</td>
-                    <td class="p-2">
-                        <strong>${o.customer.name}</strong><br>
-                        ${o.customer.phone}<br>
-                        <span class="text-gray-500">${o.customer.address}</span>
+            orders.slice().reverse().forEach(ord => {
+                const tr = document.createElement('tr');
+                const itemsStr = ord.items.map(i => `${i.title} (x${i.qty})`).join('<br>');
+
+                tr.innerHTML = `
+                    <td class="p-2 border text-xs whitespace-nowrap">${ord.date}</td>
+                    <td class="p-2 border text-xs">
+                        <strong>${ord.customer.name}</strong><br>
+                        ${ord.customer.phone}<br>
+                        <span class="text-gray-500">${ord.customer.address}</span>
                     </td>
-                    <td class="p-2">
-                        ${o.items.map(i => `${i.title} (${i.qty})`).join(', ')}
-                    </td>
-                    <td class="p-2 font-bold text-theme">Rs. ${Number(o.total).toLocaleString()}</td>
-                    <td class="p-2 font-mono">${o.ref}</td>
-                    <td class="p-2">
-                        <select onchange="updateOrderStatus('${o.id}', this.value)" class="border rounded p-1">
-                            <option value="Pending" ${o.status === 'Pending' ? 'selected' : ''}>Pending</option>
-                            <option value="Paid" ${o.status === 'Paid' ? 'selected' : ''}>Paid</option>
-                            <option value="Shipped" ${o.status === 'Shipped' ? 'selected' : ''}>Shipped</option>
-                            <option value="Completed" ${o.status === 'Completed' ? 'selected' : ''}>Completed</option>
+                    <td class="p-2 border text-xs">${itemsStr}</td>
+                    <td class="p-2 border font-bold text-xs">Rs. ${ord.total.toLocaleString()}</td>
+                    <td class="p-2 border text-xs">${ord.ref}</td>
+                    <td class="p-2 border text-xs">
+                        <select onchange="updateOrderStatus('${ord.id}', this.value)" class="border rounded p-1 text-xs">
+                            <option value="Pending" ${ord.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                            <option value="Confirmed" ${ord.status === 'Confirmed' ? 'selected' : ''}>Confirmed</option>
+                            <option value="Shipped" ${ord.status === 'Shipped' ? 'selected' : ''}>Shipped</option>
+                            <option value="Completed" ${ord.status === 'Completed' ? 'selected' : ''}>Completed</option>
                         </select>
                     </td>
-                </tr>
-            `).join('');
+                `;
+                tbody.appendChild(tr);
+            });
         }
 
-        function updateOrderStatus(id, newStatus) {
-            const order = orders.find(o => String(o.id) === String(id));
-            if (order) {
-                order.status = newStatus;
+        function updateOrderStatus(id, status) {
+            const ord = orders.find(o => o.id === id);
+            if (ord) {
+                ord.status = status;
                 localStorage.setItem('orders', JSON.stringify(orders));
-                if (db) db.collection("orders").doc(id).update({ status: newStatus });
+                if (db) db.collection("orders").doc(id).update({ status: status });
             }
         }
 
         // ADMIN SETTINGS MANAGEMENT
-        function populateSettingsForm() {
+        function loadSettingsForm() {
             document.getElementById('set-store-name').value = settings.storeName || '';
-            document.getElementById('set-logo-base64').value = settings.logo || '';
-            if (settings.logo && settings.logo.trim() !== '') {
-                document.getElementById('logo-preview').src = settings.logo;
-                document.getElementById('logo-preview-container').classList.remove('hidden');
-            } else {
-                document.getElementById('logo-preview-container').classList.add('hidden');
-            }
-
             document.getElementById('set-theme-color').value = settings.themeColor || '#4f46e5';
             document.getElementById('set-whatsapp').value = settings.whatsapp || '';
             document.getElementById('set-bank-name').value = settings.bankName || '';
             document.getElementById('set-acc-name').value = settings.accName || '';
             document.getElementById('set-acc-no').value = settings.accNo || '';
             document.getElementById('set-branch').value = settings.branch || '';
+            document.getElementById('set-logo-base64').value = settings.logo || '';
+
+            if (settings.logo) {
+                document.getElementById('logo-preview').src = settings.logo;
+                document.getElementById('logo-preview-container').classList.remove('hidden');
+            } else {
+                document.getElementById('logo-preview-container').classList.add('hidden');
+            }
         }
 
         function handleSaveSettings(e) {
             e.preventDefault();
+
             settings.storeName = document.getElementById('set-store-name').value;
-            settings.logo = document.getElementById('set-logo-base64').value;
             settings.themeColor = document.getElementById('set-theme-color').value;
             settings.whatsapp = document.getElementById('set-whatsapp').value;
             settings.bankName = document.getElementById('set-bank-name').value;
             settings.accName = document.getElementById('set-acc-name').value;
             settings.accNo = document.getElementById('set-acc-no').value;
             settings.branch = document.getElementById('set-branch').value;
+            settings.logo = document.getElementById('set-logo-base64').value;
 
             const newPass = document.getElementById('set-admin-pass').value;
-            if (newPass.trim() !== '') { settings.adminPassword = newPass; }
+            if (newPass.trim() !== '') {
+                settings.adminPassword = newPass;
+            }
 
             localStorage.setItem('store_settings', JSON.stringify(settings));
-            if (db) db.collection("settings").doc("config").set(settings);
+            if (db) {
+                db.collection("settings").doc("config").set(settings);
+            }
 
             applySettings();
             alert("Settings saved successfully!");
-            document.getElementById('set-admin-pass').value = '';
         }
     </script>
 </body>

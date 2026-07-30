@@ -2,7 +2,8 @@
 <html lang="si">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Viewport එක min-width එකට lock කර ඇත. එවිට ෆෝන් එකෙන් බැලුවත් Desktop layout එකම zoom-out වී පෙනේ -->
+    <meta name="viewport" content="width=1200, initial-scale=0.3, shrink-to-fit=no">
     <title id="page-title">Loading Store...</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -16,6 +17,9 @@
             --primary-hover: #4338ca;
             --primary-light: #e0e7ff;
         }
+        body {
+            min-width: 1200px; /* Layout එක ෆෝන් එකේ කඩෙන්නේ නැතිවෙන්න fixed width එකක් ලබා දී ඇත */
+        }
         .bg-theme { background-color: var(--primary-color) !important; }
         .bg-theme-hover:hover { background-color: var(--primary-hover) !important; }
         .text-theme { color: var(--primary-color) !important; }
@@ -23,7 +27,7 @@
         .bg-theme-light { background-color: var(--primary-light) !important; }
     </style>
 
-    <!-- Firebase SDKs (v9 Compat for easy single-file script inclusion) -->
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 </head>
@@ -31,7 +35,7 @@
 
     <!-- Navigation Bar -->
     <nav class="bg-white shadow-md sticky top-0 z-40">
-        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+        <div class="w-[1200px] mx-auto px-4 py-4 flex justify-between items-center">
             <div class="flex items-center space-x-3 cursor-pointer" onclick="filterCategory('All')">
                 <img id="store-logo" src="" alt="Logo" class="h-10 w-auto object-contain hidden">
                 <h1 id="brand-name" class="text-2xl font-bold text-theme">
@@ -48,35 +52,35 @@
     </nav>
 
     <!-- Main Content Container -->
-    <main class="max-w-7xl mx-auto px-4 py-8 flex-grow w-full">
+    <main class="w-[1200px] mx-auto px-4 py-8 flex-grow">
         <!-- Hero Banner -->
-        <div id="hero-banner" class="bg-theme text-white rounded-2xl p-8 mb-8 shadow-lg flex flex-col md:flex-row justify-between items-center transition-colors duration-300">
+        <div id="hero-banner" class="bg-theme text-white rounded-2xl p-8 mb-8 shadow-lg flex flex-row justify-between items-center transition-colors duration-300">
             <div>
-                <h2 id="banner-title" class="text-3xl md:text-4xl font-extrabold mb-2">Welcome to Our Store</h2>
+                <h2 id="banner-title" class="text-4xl font-extrabold mb-2">Welcome to Our Store</h2>
                 <p class="opacity-90 text-lg">Best products at affordable prices with easy bank transfer checkout.</p>
             </div>
         </div>
 
         <!-- Search & Filter Section -->
-        <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
-            <div class="flex space-x-2 overflow-x-auto pb-2 w-full md:w-auto" id="category-filters">
+        <div class="flex flex-row justify-between items-center gap-4 mb-8">
+            <div class="flex space-x-2 overflow-x-auto pb-2 w-auto" id="category-filters">
                 <button onclick="filterCategory('All')" class="px-4 py-2 bg-theme text-white rounded-full text-sm font-medium">All Items</button>
             </div>
-            <div class="relative w-full md:w-64">
+            <div class="relative w-64">
                 <input type="text" id="search-input" oninput="handleSearch()" placeholder="Search products..." class="w-full pl-10 pr-4 py-2 border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
                 <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-gray-400"></i>
             </div>
         </div>
 
-        <!-- Product Grid -->
-        <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <!-- Product Grid (සම ලෙස Grid-cols-4 සාදා ඇත) -->
+        <div id="product-grid" class="grid grid-cols-4 gap-6">
             <!-- Products rendered dynamically -->
         </div>
     </main>
 
     <!-- Footer -->
     <footer class="bg-gray-800 text-gray-400 py-6 mt-12 text-center text-sm relative">
-        <div class="max-w-7xl mx-auto px-4 flex justify-between items-center">
+        <div class="w-[1200px] mx-auto px-4 flex justify-between items-center">
             <p>&copy; <span id="footer-year"></span> <span id="footer-brand">Store Name</span>. All rights reserved.</p>
             
             <!-- Hidden Admin Access Button -->
@@ -88,7 +92,7 @@
 
     <!-- CART DRAWER -->
     <div id="cart-drawer" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden transition-opacity">
-        <div class="fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-xl flex flex-col justify-between">
+        <div class="fixed right-0 top-0 h-full w-[400px] bg-white shadow-xl flex flex-col justify-between">
             <div class="p-4 border-b flex justify-between items-center">
                 <h3 class="text-lg font-bold text-gray-800">Your Shopping Cart</h3>
                 <button onclick="toggleCart()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
@@ -112,7 +116,7 @@
 
     <!-- CHECKOUT MODAL -->
     <div id="checkout-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6 relative shadow-2xl">
+        <div class="bg-white rounded-2xl w-[500px] max-h-[90vh] overflow-y-auto p-6 relative shadow-2xl">
             <button onclick="closeCheckoutModal()" class="absolute right-4 top-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
             
             <h3 class="text-2xl font-bold text-gray-800 mb-4">Complete Your Order</h3>
@@ -161,7 +165,7 @@
 
     <!-- ADMIN AUTHENTICATION MODAL -->
     <div id="admin-auth-modal" class="fixed inset-0 bg-black bg-opacity-60 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-sm w-full p-6 text-center shadow-2xl relative">
+        <div class="bg-white rounded-2xl w-[350px] p-6 text-center shadow-2xl relative">
             <button onclick="closeAdminAuth()" class="absolute right-4 top-4 text-gray-400 hover:text-gray-600 text-xl">&times;</button>
             <div class="w-12 h-12 bg-theme-light text-theme rounded-full flex items-center justify-center mx-auto mb-4 text-xl">
                 <i class="fa-solid fa-user-shield"></i>
@@ -176,7 +180,7 @@
 
     <!-- ADMIN DASHBOARD MODAL -->
     <div id="admin-dashboard-modal" class="fixed inset-0 bg-black bg-opacity-60 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
+        <div class="bg-white rounded-2xl w-[1000px] max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
             <!-- Dashboard Header -->
             <div class="bg-gray-900 text-white p-4 flex justify-between items-center">
                 <h3 class="font-bold text-lg flex items-center gap-2">
@@ -197,7 +201,7 @@
                 <div id="tab-products" class="space-y-6">
                     <div class="bg-gray-50 p-4 border rounded-xl space-y-4">
                         <h4 class="font-bold text-gray-800 text-base" id="prod-form-title">Add New Product</h4>
-                        <form id="add-product-form" onsubmit="handleAddOrUpdateProduct(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <form id="add-product-form" onsubmit="handleAddOrUpdateProduct(event)" class="grid grid-cols-2 gap-4">
                             <input type="hidden" id="prod-id">
                             <div>
                                 <label class="block text-xs font-semibold text-gray-600">Product Title *</label>
@@ -212,7 +216,6 @@
                                 <input type="text" id="prod-category" required placeholder="e.g. Clothing, Electronics" class="w-full border rounded p-2 text-sm">
                             </div>
 
-                            <!-- FILE UPLOAD INPUT INSTEAD OF URL INPUT -->
                             <div>
                                 <label class="block text-xs font-semibold text-gray-600 mb-1">Product Image *</label>
                                 <input type="file" id="prod-file-input" accept="image/*" onchange="previewImageFile(event)" class="w-full border rounded p-1 text-sm bg-white cursor-pointer">
@@ -223,11 +226,11 @@
                                 </div>
                             </div>
 
-                            <div class="md:col-span-2">
+                            <div class="col-span-2">
                                 <label class="block text-xs font-semibold text-gray-600">Description</label>
                                 <textarea id="prod-desc" rows="2" class="w-full border rounded p-2 text-sm"></textarea>
                             </div>
-                            <div class="md:col-span-2 flex gap-2">
+                            <div class="col-span-2 flex gap-2">
                                 <button type="submit" id="prod-submit-btn" class="bg-theme text-white px-6 py-2 rounded-lg font-semibold text-sm bg-theme-hover">Save Product</button>
                                 <button type="button" onclick="resetProductForm()" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg font-semibold text-sm hover:bg-gray-400">Cancel</button>
                             </div>
@@ -288,7 +291,6 @@
                             <input type="text" id="set-store-name" required class="w-full border rounded p-2 text-sm">
                         </div>
 
-                        <!-- LOGO UPLOAD OPTION -->
                         <div>
                             <label class="block text-xs font-semibold text-gray-600 mb-1">Store Logo (ලෝගෝ එක)</label>
                             <input type="file" id="set-logo-file" accept="image/*" onchange="previewLogoFile(event)" class="w-full border rounded p-1 text-sm bg-white cursor-pointer">
@@ -352,7 +354,6 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
-        // Optional Firebase Configuration
         const firebaseConfig = {
             apiKey: "YOUR_API_KEY",
             authDomain: "YOUR_PROJECT.firebaseapp.com",
@@ -370,7 +371,6 @@
             }
         } catch(e) { console.warn("Firebase not configured. Running on local mode."); }
 
-        // DEFAULT DATA
         const DEFAULT_PRODUCTS = [
             { id: '1', title: "Classic Cotton T-Shirt", price: 2500, category: "Clothing", image: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=500&q=80", description: "Premium high-quality cotton t-shirt." },
             { id: '2', title: "Smart Watch Series 5", price: 8900, category: "Electronics", image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&q=80", description: "Fitness tracker, heart rate monitor." },
@@ -404,11 +404,9 @@
             initRealtimeListeners();
         });
 
-        // IMAGE FILE TO BASE64 CONVERTER & PREVIEW FUNCTION FOR PRODUCTS
         function previewImageFile(e) {
             const file = e.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
             reader.onload = function(event) {
                 const base64String = event.target.result;
@@ -419,11 +417,9 @@
             reader.readAsDataURL(file);
         }
 
-        // LOGO FILE TO BASE64 CONVERTER & PREVIEW FUNCTION FOR SETTINGS
         function previewLogoFile(e) {
             const file = e.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
             reader.onload = function(event) {
                 const base64String = event.target.result;
@@ -440,7 +436,6 @@
             document.getElementById('logo-preview-container').classList.add('hidden');
         }
 
-        // REAL-TIME SYNCING
         function initRealtimeListeners() {
             if (db) {
                 db.collection("settings").doc("config").onSnapshot(doc => {
@@ -478,13 +473,11 @@
             });
         }
 
-        // APPLY SETTINGS
         function applySettings() {
             document.getElementById('page-title').innerText = settings.storeName;
             document.getElementById('brand-name').innerText = settings.storeName;
             document.getElementById('footer-brand').innerText = settings.storeName;
 
-            // Apply Logo if available
             const logoImg = document.getElementById('store-logo');
             if (settings.logo && settings.logo.trim() !== '') {
                 logoImg.src = settings.logo;
@@ -513,7 +506,6 @@
             return "#" + (0x1000000 + (R<255?R<1?0:R:255)*0x10000 + (G<255?G<1?0:G:255)*0x100 + (B<255?B<1?0:B:255)).toString(16).slice(1);
         }
 
-        // CATEGORY FILTERS
         function renderCategoryFilters() {
             const container = document.getElementById('category-filters');
             const categories = ['All', ...new Set(products.map(p => p.category))];
@@ -536,7 +528,6 @@
             renderProducts();
         }
 
-        // PRODUCT RENDERING
         function renderProducts() {
             const grid = document.getElementById('product-grid');
             grid.innerHTML = '';
@@ -549,25 +540,25 @@
             });
 
             if (filtered.length === 0) {
-                grid.innerHTML = `<div class="col-span-full text-center py-12 text-gray-500">No products found.</div>`;
+                grid.innerHTML = `<div class="col-span-4 text-center py-12 text-gray-500">No products found.</div>`;
                 return;
             }
 
             filtered.forEach(p => {
                 const card = document.createElement('div');
-                card.className = "bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition flex flex-col justify-between";
+                card.className = "bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition flex flex-col justify-between";
                 card.innerHTML = `
                     <div>
-                        <img src="${p.image || 'https://via.placeholder.com/300'}" alt="${p.title}" class="w-full h-48 object-cover">
+                        <img src="${p.image}" alt="${p.title}" class="w-full h-48 object-cover">
                         <div class="p-4">
-                            <span class="text-xs font-semibold bg-gray-100 text-gray-600 px-2.5 py-1 rounded-full">${p.category}</span>
-                            <h3 class="font-bold text-gray-800 text-lg mt-2">${p.title}</h3>
-                            <p class="text-gray-500 text-xs mt-1 line-clamp-2">${p.description || ''}</p>
+                            <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">${p.category}</span>
+                            <h3 class="text-lg font-bold text-gray-800 mt-1 line-clamp-1">${p.title}</h3>
+                            <p class="text-sm text-gray-500 mt-1 line-clamp-2">${p.description || ''}</p>
                         </div>
                     </div>
-                    <div class="p-4 pt-0 flex items-center justify-between mt-2">
-                        <span class="text-lg font-extrabold text-theme">Rs. ${Number(p.price).toLocaleString()}</span>
-                        <button onclick="addToCart('${p.id}')" class="bg-theme text-white px-3.5 py-2 rounded-xl text-xs font-bold bg-theme-hover transition flex items-center gap-1.5">
+                    <div class="p-4 pt-0 flex justify-between items-center border-t border-gray-100 mt-2">
+                        <span class="text-lg font-bold text-theme">Rs. ${p.price.toLocaleString()}</span>
+                        <button onclick="addToCart('${p.id}')" class="bg-theme text-white px-3 py-1.5 rounded-lg text-sm bg-theme-hover transition flex items-center gap-1">
                             <i class="fa-solid fa-cart-plus"></i> Add
                         </button>
                     </div>
@@ -576,36 +567,31 @@
             });
         }
 
-        // CART MANAGEMENT
         function toggleCart() {
             document.getElementById('cart-drawer').classList.toggle('hidden');
         }
 
-        function addToCart(prodId) {
-            const prod = products.find(p => p.id === prodId);
+        function addToCart(id) {
+            const prod = products.find(p => p.id === id);
             if (!prod) return;
-
-            const existing = cart.find(item => item.id === prodId);
+            const existing = cart.find(c => c.id === id);
             if (existing) {
-                existing.qty += 1;
+                existing.qty++;
             } else {
                 cart.push({ ...prod, qty: 1 });
             }
-
             saveCart();
             renderCart();
             toggleCart();
         }
 
-        function updateCartQty(prodId, change) {
-            const item = cart.find(i => i.id === prodId);
+        function updateCartQty(id, delta) {
+            const item = cart.find(c => c.id === id);
             if (!item) return;
-
-            item.qty += change;
+            item.qty += delta;
             if (item.qty <= 0) {
-                cart = cart.filter(i => i.id !== prodId);
+                cart = cart.filter(c => c.id !== id);
             }
-
             saveCart();
             renderCart();
         }
@@ -616,45 +602,40 @@
 
         function renderCart() {
             const container = document.getElementById('cart-items');
-            const cartCountEl = document.getElementById('cart-count');
-            const cartTotalEl = document.getElementById('cart-total');
+            container.innerHTML = '';
+            let total = 0;
+            let count = 0;
 
-            const totalCount = cart.reduce((sum, item) => sum + item.qty, 0);
-            const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            cart.forEach(item => {
+                total += item.price * item.qty;
+                count += item.qty;
 
-            cartCountEl.innerText = totalCount;
-            cartTotalEl.innerText = `Rs. ${totalPrice.toLocaleString()}`;
-
-            if (cart.length === 0) {
-                container.innerHTML = `<div class="text-center py-12 text-gray-400">Your cart is empty.</div>`;
-                return;
-            }
-
-            container.innerHTML = cart.map(item => `
-                <div class="flex items-center justify-between border-b pb-3">
-                    <div class="flex items-center gap-3">
-                        <img src="${item.image || 'https://via.placeholder.com/100'}" class="w-12 h-12 object-cover rounded-lg border">
+                const div = document.createElement('div');
+                div.className = "flex items-center justify-between border-b pb-3";
+                div.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <img src="${item.image}" class="w-12 h-12 object-cover rounded">
                         <div>
-                            <h4 class="font-bold text-sm text-gray-800 line-clamp-1">${item.title}</h4>
-                            <p class="text-xs text-theme font-semibold">Rs. ${Number(item.price).toLocaleString()}</p>
+                            <h4 class="text-sm font-semibold text-gray-800">${item.title}</h4>
+                            <p class="text-xs text-gray-500">Rs. ${item.price.toLocaleString()} x ${item.qty}</p>
                         </div>
                     </div>
-                    <div class="flex items-center gap-2 border rounded-lg px-2 py-1">
-                        <button onclick="updateCartQty('${item.id}', -1)" class="text-gray-500 hover:text-black font-bold px-1">-</button>
-                        <span class="text-xs font-bold w-4 text-center">${item.qty}</span>
-                        <button onclick="updateCartQty('${item.id}', 1)" class="text-gray-500 hover:text-black font-bold px-1">+</button>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="updateCartQty('${item.id}', -1)" class="px-2 py-0.5 bg-gray-200 rounded text-sm">-</button>
+                        <span class="text-sm font-bold">${item.qty}</span>
+                        <button onclick="updateCartQty('${item.id}', 1)" class="px-2 py-0.5 bg-gray-200 rounded text-sm">+</button>
                     </div>
-                </div>
-            `).join('');
+                `;
+                container.appendChild(div);
+            });
+
+            document.getElementById('cart-total').innerText = `Rs. ${total.toLocaleString()}`;
+            document.getElementById('cart-count').innerText = count;
         }
 
-        // CHECKOUT & WHATSAPP
         function openCheckoutModal() {
-            if (cart.length === 0) {
-                alert("Your cart is empty!");
-                return;
-            }
-            toggleCart();
+            if (cart.length === 0) { alert('Your cart is empty!'); return; }
+            document.getElementById('cart-drawer').classList.add('hidden');
             document.getElementById('checkout-modal').classList.remove('hidden');
         }
 
@@ -664,109 +645,88 @@
 
         function handlePlaceOrder(e) {
             e.preventDefault();
-
             const name = document.getElementById('cust-name').value;
             const phone = document.getElementById('cust-phone').value;
             const address = document.getElementById('cust-address').value;
             const ref = document.getElementById('cust-ref').value;
 
             const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-            const newOrder = {
-                id: Date.now().toString(),
+            const orderData = {
                 date: new Date().toLocaleString(),
                 customer: { name, phone, address },
                 items: [...cart],
                 total: total,
-                ref: ref || 'N/A',
+                ref: ref,
                 status: 'Pending'
             };
 
-            orders.unshift(newOrder);
+            orders.unshift(orderData);
             localStorage.setItem('orders', JSON.stringify(orders));
+            if (db) db.collection("orders").add(orderData);
 
-            if (db) {
-                db.collection("orders").doc(newOrder.id).set(newOrder);
-            }
+            let msg = `*NEW ORDER - ${settings.storeName}*\n\n`;
+            msg += `*Name:* ${name}\n*Phone:* ${phone}\n*Address:* ${address}\n`;
+            if (ref) msg += `*Ref/Notes:* ${ref}\n`;
+            msg += `\n*Items Ordered:*\n`;
+            cart.forEach(i => { msg += `- ${i.title} (x${i.qty}) : Rs. ${(i.price * i.qty).toLocaleString()}\n`; });
+            msg += `\n*Total Amount:* Rs. ${total.toLocaleString()}\n\n`;
+            msg += `*Bank Details:* ${settings.bankName} | ${settings.accNo}`;
 
-            // Construct WhatsApp Message
-            let itemsText = cart.map(i => `• ${i.title} x ${i.qty} = Rs. ${i.price * i.qty}`).join('\n');
-            let message = `🛒 *NEW ORDER - ${settings.storeName}*\n\n` +
-                `*Customer Details:*\n` +
-                `👤 Name: ${name}\n` +
-                `📞 Phone: ${phone}\n` +
-                `📍 Address: ${address}\n\n` +
-                `*Order Items:*\n${itemsText}\n\n` +
-                `💰 *Total Amount:* Rs. ${total.toLocaleString()}\n` +
-                `💳 *Payment Ref:* ${ref || 'None'}\n\n` +
-                `Please process my order. Thank you!`;
-
-            const waNumber = settings.whatsapp.replace(/[^0-9]/g, '');
-            const waUrl = `https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`;
+            const waNum = settings.whatsapp ? settings.whatsapp.replace(/[^0-9]/g, '') : '';
+            window.open(`https://wa.me/${waNum}?text=${encodeURIComponent(msg)}`, '_blank');
 
             cart = [];
             saveCart();
             renderCart();
             closeCheckoutModal();
-            document.getElementById('checkout-form').reset();
-
-            window.open(waUrl, '_blank');
         }
 
-        // ADMIN AUTHENTICATION
+        // ADMIN LOGIC
         function openAdminAuth() {
             document.getElementById('admin-auth-modal').classList.remove('hidden');
         }
 
         function closeAdminAuth() {
             document.getElementById('admin-auth-modal').classList.add('hidden');
-            document.getElementById('admin-pass-input').value = '';
         }
 
         function verifyAdminPassword() {
-            const pass = document.getElementById('admin-pass-input').value;
-            if (pass === (settings.adminPassword || "admin123")) {
+            const input = document.getElementById('admin-pass-input').value;
+            if (input === (settings.adminPassword || 'admin123')) {
                 closeAdminAuth();
-                openAdminDashboard();
+                document.getElementById('admin-dashboard-modal').classList.remove('hidden');
+                renderAdminProductsTable();
+                renderAdminOrdersTable();
+                populateSettingsForm();
             } else {
-                alert("Incorrect password!");
+                alert('Incorrect Password!');
             }
-        }
-
-        function openAdminDashboard() {
-            renderAdminProductsTable();
-            renderAdminOrdersTable();
-            loadSettingsToForm();
-            document.getElementById('admin-dashboard-modal').classList.remove('hidden');
         }
 
         function closeAdminDashboard() {
             document.getElementById('admin-dashboard-modal').classList.add('hidden');
         }
 
-        function switchAdminTab(tabName) {
+        function switchAdminTab(tab) {
             ['products', 'orders', 'settings'].forEach(t => {
                 document.getElementById(`tab-${t}`).classList.add('hidden');
-                const btn = document.getElementById(`tab-btn-${t}`);
-                btn.className = "px-6 py-3 font-semibold text-sm border-b-2 border-transparent text-gray-600 hover:text-theme";
+                document.getElementById(`tab-btn-${t}`).className = "px-6 py-3 font-semibold text-sm border-b-2 border-transparent text-gray-600 hover:text-theme";
             });
-
-            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
-            const activeBtn = document.getElementById(`tab-btn-${tabName}`);
-            activeBtn.className = "px-6 py-3 font-semibold text-sm border-b-2 border-theme text-theme bg-white";
+            document.getElementById(`tab-${tab}`).classList.remove('hidden');
+            document.getElementById(`tab-btn-${tab}`).className = "px-6 py-3 font-semibold text-sm border-b-2 border-theme text-theme bg-white";
         }
 
-        // ADMIN PRODUCTS MANAGEMENT
         function renderAdminProductsTable() {
             const tbody = document.getElementById('admin-products-table');
             tbody.innerHTML = products.map(p => `
-                <tr class="border-b hover:bg-gray-50">
-                    <td class="p-2 border"><img src="${p.image || ''}" class="w-10 h-10 object-cover rounded"></td>
+                <tr>
+                    <td class="p-2 border"><img src="${p.image}" class="w-10 h-10 object-cover rounded"></td>
                     <td class="p-2 border font-medium">${p.title}</td>
-                    <td class="p-2 border">Rs. ${Number(p.price).toLocaleString()}</td>
+                    <td class="p-2 border">Rs. ${p.price.toLocaleString()}</td>
                     <td class="p-2 border">${p.category}</td>
                     <td class="p-2 border space-x-2">
-                        <button onclick="editProduct('${p.id}')" class="text-blue-600 hover:underline text-xs font-bold">Edit</button>
-                        <button onclick="deleteProduct('${p.id}')" class="text-red-600 hover:underline text-xs font-bold">Delete</button>
+                        <button onclick="editProduct('${p.id}')" class="text-blue-600 hover:underline text-xs">Edit</button>
+                        <button onclick="deleteProduct('${p.id}')" class="text-red-600 hover:underline text-xs">Delete</button>
                     </td>
                 </tr>
             `).join('');
@@ -776,51 +736,53 @@
             e.preventDefault();
             const id = document.getElementById('prod-id').value;
             const title = document.getElementById('prod-title').value;
-            const price = Number(document.getElementById('prod-price').value);
+            const price = parseFloat(document.getElementById('prod-price').value);
             const category = document.getElementById('prod-category').value;
-            const image = document.getElementById('prod-image-base64').value || 'https://via.placeholder.com/300';
+            const image = document.getElementById('prod-image-base64').value || 'https://via.placeholder.com/150';
             const description = document.getElementById('prod-desc').value;
 
-            const productData = { title, price, category, image, description };
-
             if (id) {
-                const index = products.findIndex(p => p.id === id);
-                if (index !== -1) {
-                    products[index] = { id, ...productData };
-                }
-                if (db) db.collection("products").doc(id).update(productData);
+                const idx = products.findIndex(p => p.id === id);
+                if (idx !== -1) products[idx] = { id, title, price, category, image, description };
+                if (db) db.collection("products").doc(id).set({ title, price, category, image, description });
             } else {
                 const newId = Date.now().toString();
-                const newProduct = { id: newId, ...productData };
-                products.push(newProduct);
-                if (db) db.collection("products").doc(newId).set(newProduct);
+                const newProd = { id: newId, title, price, category, image, description };
+                products.push(newProd);
+                if (db) db.collection("products").doc(newId).set(newProd);
             }
 
             localStorage.setItem('products', JSON.stringify(products));
+            resetProductForm();
+            renderAdminProductsTable();
             renderCategoryFilters();
             renderProducts();
-            renderAdminProductsTable();
-            resetProductForm();
         }
 
         function editProduct(id) {
-            const p = products.find(item => item.id === id);
+            const p = products.find(x => x.id === id);
             if (!p) return;
-
             document.getElementById('prod-id').value = p.id;
             document.getElementById('prod-title').value = p.title;
             document.getElementById('prod-price').value = p.price;
             document.getElementById('prod-category').value = p.category;
             document.getElementById('prod-desc').value = p.description || '';
-            document.getElementById('prod-image-base64').value = p.image || '';
-
-            if (p.image) {
-                document.getElementById('image-preview').src = p.image;
-                document.getElementById('image-preview-container').classList.remove('hidden');
-            }
-
+            document.getElementById('prod-image-base64').value = p.image;
+            document.getElementById('image-preview').src = p.image;
+            document.getElementById('image-preview-container').classList.remove('hidden');
             document.getElementById('prod-form-title').innerText = "Edit Product";
             document.getElementById('prod-submit-btn').innerText = "Update Product";
+        }
+
+        function deleteProduct(id) {
+            if (confirm('Are you sure you want to delete this product?')) {
+                products = products.filter(p => p.id !== id);
+                localStorage.setItem('products', JSON.stringify(products));
+                if (db) db.collection("products").doc(id).delete();
+                renderAdminProductsTable();
+                renderCategoryFilters();
+                renderProducts();
+            }
         }
 
         function resetProductForm() {
@@ -832,71 +794,40 @@
             document.getElementById('prod-submit-btn').innerText = "Save Product";
         }
 
-        function deleteProduct(id) {
-            if (!confirm("Are you sure you want to delete this product?")) return;
-
-            products = products.filter(p => p.id !== id);
-            localStorage.setItem('products', JSON.stringify(products));
-
-            if (db) db.collection("products").doc(id).delete();
-
-            renderCategoryFilters();
-            renderProducts();
-            renderAdminProductsTable();
-        }
-
-        // ADMIN ORDERS MANAGEMENT
         function renderAdminOrdersTable() {
             const tbody = document.getElementById('admin-orders-table');
-            if (orders.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-gray-400">No orders received yet.</td></tr>`;
-                return;
-            }
-
             tbody.innerHTML = orders.map(o => `
-                <tr class="border-b hover:bg-gray-50">
+                <tr>
                     <td class="p-2 border text-xs">${o.date}</td>
                     <td class="p-2 border text-xs">
-                        <strong>${o.customer.name}</strong><br>
-                        ${o.customer.phone}<br>
-                        ${o.customer.address}
+                        <strong>${o.customer.name}</strong><br>${o.customer.phone}<br>${o.customer.address}
                     </td>
-                    <td class="p-2 border text-xs">
-                        ${o.items.map(i => `${i.title} (${i.qty})`).join('<br>')}
-                    </td>
-                    <td class="p-2 border font-bold text-xs">Rs. ${Number(o.total).toLocaleString()}</td>
-                    <td class="p-2 border text-xs">${o.ref}</td>
-                    <td class="p-2 border">
-                        <span class="px-2 py-1 rounded text-xs font-bold ${o.status === 'Completed' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}">
-                            ${o.status || 'Pending'}
-                        </span>
-                    </td>
+                    <td class="p-2 border text-xs">${o.items.map(i => `${i.title} (${i.qty})`).join(', ')}</td>
+                    <td class="p-2 border font-bold text-xs">Rs. ${o.total.toLocaleString()}</td>
+                    <td class="p-2 border text-xs">${o.ref || '-'}</td>
+                    <td class="p-2 border text-xs"><span class="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded font-semibold">${o.status}</span></td>
                 </tr>
             `).join('');
         }
 
-        // ADMIN SETTINGS
-        function loadSettingsToForm() {
-            document.getElementById('set-store-name').value = settings.storeName;
-            document.getElementById('set-theme-color').value = settings.themeColor || "#4f46e5";
-            document.getElementById('set-whatsapp').value = settings.whatsapp;
-            document.getElementById('set-bank-name').value = settings.bankName;
-            document.getElementById('set-acc-name').value = settings.accName;
-            document.getElementById('set-acc-no').value = settings.accNo;
-            document.getElementById('set-branch').value = settings.branch;
-            document.getElementById('set-logo-base64').value = settings.logo || '';
+        function populateSettingsForm() {
+            document.getElementById('set-store-name').value = settings.storeName || '';
+            document.getElementById('set-theme-color').value = settings.themeColor || '#4f46e5';
+            document.getElementById('set-whatsapp').value = settings.whatsapp || '';
+            document.getElementById('set-bank-name').value = settings.bankName || '';
+            document.getElementById('set-acc-name').value = settings.accName || '';
+            document.getElementById('set-acc-no').value = settings.accNo || '';
+            document.getElementById('set-branch').value = settings.branch || '';
 
             if (settings.logo) {
+                document.getElementById('set-logo-base64').value = settings.logo;
                 document.getElementById('logo-preview').src = settings.logo;
                 document.getElementById('logo-preview-container').classList.remove('hidden');
-            } else {
-                document.getElementById('logo-preview-container').classList.add('hidden');
             }
         }
 
         function handleSaveSettings(e) {
             e.preventDefault();
-
             settings.storeName = document.getElementById('set-store-name').value;
             settings.themeColor = document.getElementById('set-theme-color').value;
             settings.whatsapp = document.getElementById('set-whatsapp').value;
@@ -907,18 +838,15 @@
             settings.logo = document.getElementById('set-logo-base64').value;
 
             const newPass = document.getElementById('set-admin-pass').value;
-            if (newPass && newPass.trim() !== '') {
+            if (newPass.trim() !== '') {
                 settings.adminPassword = newPass;
             }
 
             localStorage.setItem('store_settings', JSON.stringify(settings));
-
-            if (db) {
-                db.collection("settings").doc("config").set(settings);
-            }
+            if (db) db.collection("settings").doc("config").set(settings);
 
             applySettings();
-            alert("Settings saved successfully!");
+            alert('Settings Saved Successfully!');
         }
     </script>
 </body>

@@ -259,9 +259,6 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // Free Fast ImgBB API Key for instant image uploads
-        const IMGBB_API_KEY = "6d23253704461b622a5b32a2264b4d94";
-
         let products = [];
         let settings = {};
         let liveOrders = [];
@@ -362,7 +359,7 @@
                 card.className = "bg-white/90 backdrop-blur rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col justify-between hover:shadow-md transition";
                 card.innerHTML = `
                     <div>
-                        <div class="h-52 overflow-hidden bg-gray-100 relative">
+                        <div class="h-52 overflow-hidden bg-gray-100 relative flex items-center justify-center">
                             <img src="${prod.image}" class="w-full h-full object-cover">
                             <span class="absolute top-3 left-3 bg-white/90 backdrop-blur px-2.5 py-1 rounded-full text-xs font-semibold text-gray-700">${prod.category}</span>
                         </div>
@@ -593,20 +590,27 @@
             `).join('');
         }
 
-        // INSTANT IMAGE UPLOAD FUNCTION VIA IMGBB
-        async function uploadImageToImgBB(file) {
-            const formData = new FormData();
-            formData.append("image", file);
-            const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
-                method: "POST",
-                body: formData
+        // FAST LOCAL COMPRESSION FUNCTION (NO EXTERNAL UPLOAD APIS NEEDED)
+        function compressImageToFile(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const MAX_WIDTH = 400; // Resize to light dimensions
+                        const scale = MAX_WIDTH / img.width;
+                        canvas.width = MAX_WIDTH;
+                        canvas.height = img.height * scale;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        resolve(canvas.toDataURL('image/jpeg', 0.6)); // High compression for instant sync
+                    };
+                };
+                reader.onerror = error => reject(error);
             });
-            const data = await response.json();
-            if (data.success) {
-                return data.data.url;
-            } else {
-                throw new Error("Image upload failed");
-            }
         }
 
         async function handleSaveProduct(e) {
@@ -619,11 +623,11 @@
                 let imgUrl = document.getElementById('prod-image-url').value;
 
                 if (fileInput.files[0]) {
-                    imgUrl = await uploadImageToImgBB(fileInput.files[0]);
+                    imgUrl = await compressImageToFile(fileInput.files[0]);
                 }
 
                 if (!imgUrl) {
-                    alert('Please select an image file or enter an image URL');
+                    alert('Please choose an image file or enter an image URL');
                     btn.innerText = "Save Product to Cloud";
                     return;
                 }
@@ -640,7 +644,7 @@
                 document.getElementById('add-product-form').reset();
                 alert('Product Saved & Synced Real-Time!');
             } catch (err) {
-                alert('Image upload / Save failed! Check internet connection.');
+                alert('Error saving product. Please try again.');
             } finally {
                 btn.innerText = "Save Product to Cloud";
             }
@@ -681,7 +685,7 @@
             let logoUrl = document.getElementById('set-logo-url').value;
 
             if (logoFileInput.files[0]) {
-                logoUrl = await uploadImageToImgBB(logoFileInput.files[0]);
+                logoUrl = await compressImageToFile(logoFileInput.files[0]);
             }
 
             const newSettings = {

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="page-title">My Online Store</title>
+    <title id="page-title">ලාබ කඩේ</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -509,7 +509,7 @@
             if (ref) message += `📝 Payment Ref: ${ref}\n`;
             message += `\n*Order Items:*\n${orderItemsText}\n\n`;
             message += `💰 *Total Amount: Rs. ${totalPrice.toLocaleString()}*\n\n`;
-            message += `--- Bank Account for Deposit ---\nBank: ${settings.bankName}\nAccount: ${settings.accNo} (${settings.accName})\nBranch: ${settings.branch}\n\n*Please attach your bank payment slip below:*`;
+            message += `--- Bank Account for Deposit ---\nBank: ${settings.bankName}\nAccount: ${settings.accNo} (${settings.accName})\nBranch: ${settings.branch}\n\n*Please attach your bank payment slip below:(Order එක complete කිරීමට පහතින් Bank slip එක upload කරන්න)*`;
 
             const encodedMessage = encodeURIComponent(message);
             const whatsappUrl = `https://wa.me/${settings.whatsapp}?text=${encodedMessage}`;

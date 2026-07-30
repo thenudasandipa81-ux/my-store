@@ -674,6 +674,9 @@
             cart.forEach(i => { msg += `- ${i.title} x ${i.qty} = Rs. ${(i.price * i.qty).toLocaleString()}\n`; });
             msg += `\n*Total Amount:* Rs. ${orderTotal.toLocaleString()}\n`;
             if (ref) msg += `*Payment Reference:* ${ref}\n`;
+            
+            // එකතු කරන ලද කොටස:
+            msg += `\nPlease attach your bank payment slip below:\n(Order එක complete කිරීමට පහතින් Bank slip එක upload කරන්න)`;
 
             const waNum = settings.whatsapp ? settings.whatsapp.replace(/[^0-9]/g, '') : '';
             const waUrl = `https://wa.me/${waNum}?text=${encodeURIComponent(msg)}`;
